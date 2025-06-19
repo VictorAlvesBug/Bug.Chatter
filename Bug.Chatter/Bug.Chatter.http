@@ -1,0 +1,6 @@
+@Bug.Chatter_HostAddress = http://localhost:5116
+
+GET {{Bug.Chatter_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
