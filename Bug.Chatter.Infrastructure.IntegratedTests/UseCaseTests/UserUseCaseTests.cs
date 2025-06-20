@@ -1,6 +1,10 @@
+using Bug.Chatter.Application;
+using Bug.Chatter.Application.Common;
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
 using Bug.Chatter.Application.Users;
+using Bug.Chatter.Domain.Users;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 {
@@ -11,7 +15,8 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 
 		public UserUseCaseTests()
 		{
-			_services = new ServiceCollection();
+			_services = new ServiceCollection()
+				.AddUserApplicationServices();
 		}
 
 		[SetUp]
@@ -24,8 +29,15 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 		{
 			// Arrange
 			var command = new CreateUserCommand("Victor Bugueno", "+55 (11) 97562-3736");
+			
+			var mockRepository = new Mock<IUserRepository>();
+			mockRepository
+				.Setup(repo => repo.SafePutAsync(It.IsAny<User>()))
+				.Returns(Task.FromResult(true));
 
-			var useCase = _serviceProvider.GetRequiredService<CreateUserUseCase>();
+			var useCase = new CreateUserUseCase(
+				mockRepository.Object,
+				_serviceProvider.GetRequiredService<ICommandMapper<CreateUserCommand, User>>());
 
 			// Act
 			var result = await useCase.HandleAsync(command);

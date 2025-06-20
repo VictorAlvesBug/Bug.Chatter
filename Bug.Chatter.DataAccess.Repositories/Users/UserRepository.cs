@@ -17,7 +17,7 @@ namespace Bug.Chatter.DataAccess.Repositories.Users
 			ArgumentException.ThrowIfNullOrEmpty(pk, nameof(pk));
 
 			var dto = await _userContext.GetAsync(pk, Database.UserSk);
-			return dto is not null ? User.FromDTO(dto) : null;
+			return dto is not null ? User.LoadFromPersistence(dto) : null;
 		}
 
 		public async Task<User[]> BatchGetAsync(string[] pks)
@@ -32,7 +32,7 @@ namespace Bug.Chatter.DataAccess.Repositories.Users
 				throw new Exception(
 					$"Alguns usuários não foram encontrados. PKs não encontradas: {string.Join(", ", missingKeys)}");
 
-			return dtos.Select(User.FromDTO).ToArray();
+			return dtos.Select(User.LoadFromPersistence).ToArray();
 		}
 
 		public async Task<IEnumerable<User>> ListByChatIdAsync(string chatId)
@@ -52,7 +52,7 @@ namespace Bug.Chatter.DataAccess.Repositories.Users
 			ArgumentNullException.ThrowIfNull(user, nameof(user));
 
 			var dto = await _userContext.UpdateDynamicAsync(user.ToDTO());
-			return User.FromDTO(dto);
+			return User.LoadFromPersistence(dto);
 		}
 
 		public async Task DeleteAsync(string pk)

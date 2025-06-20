@@ -1,24 +1,28 @@
-﻿using Bug.Chatter.Application.SeedWork.UseCaseStructure;
+﻿using Bug.Chatter.Application.Common;
+using Bug.Chatter.Application.CreateUser;
+using Bug.Chatter.Application.SeedWork.UseCaseStructure;
+using Bug.Chatter.Domain.SeedWork.ValueObjects;
 using Bug.Chatter.Domain.Users;
 
 namespace Bug.Chatter.Application.Users
 {
 	public class CreateUserUseCase : IUseCase<CreateUserCommand, CreateUserResult>
 	{
-		private readonly IUserRepository _repository;
+		private readonly IUserRepository _userRepository;
+		private readonly ICommandMapper<CreateUserCommand, User> _userMapper;
 
-		public CreateUserUseCase(IUserRepository repository)
+		public CreateUserUseCase(IUserRepository userRepository, ICommandMapper<CreateUserCommand, User> userMapper)
 		{
-			_repository = repository;
+			_userRepository = userRepository;
+			_userMapper = userMapper;
 		}
 
 		public async Task<CreateUserResult> HandleAsync(CreateUserCommand input)
 		{
 			try
 			{
-				var user = User.CreateNew(input.Name, input.PhoneNumber);
-
-				await _repository.SafePutAsync(user);
+				var user = _userMapper.Map(input);
+				await _userRepository.SafePutAsync(user);
 
 				return new CreateUserResult(
 					ResultStatus.Success,

@@ -1,90 +1,76 @@
-﻿using Bug.Chatter.Domain.Models;
-using Bug.Chatter.Domain.SeedWork.Exceptions;
-using Bug.Chatter.Domain.SeedWork.StringBuilders;
-using System.Text.RegularExpressions;
+﻿using Bug.Chatter.Domain.Errors;
+using Bug.Chatter.Domain.Models;
+using Bug.Chatter.Domain.SeedWork.ValueObjects;
 
 namespace Bug.Chatter.Domain.Users
 {
 	public class User
 	{
-		private readonly string _pk;
-		private readonly string _sk;
-		private readonly string _id;
-		private string _name;
-		private string _phoneNumber;
+		private readonly UserPk _pk;
+		private readonly UserSk _sk;
+		private readonly UserId _id;
+		private Name _name;
+		private PhoneNumber _phoneNumber;
 
 		private User(
-			string name,
-			string phoneNumber)
+			Name name,
+			PhoneNumber phoneNumber)
 			: this(
-				Database.GenerateUserId(), 
+				UserId.Generate(), 
 				name,
 				phoneNumber) { }
 
 		private User(
-			string id,
-			string name,
-			string phoneNumber)
+			UserId id,
+			Name name,
+			PhoneNumber phoneNumber)
 		{
 			_id = id;
-			_pk = Database.GetUserPk(id);
-			_sk = Database.UserSk;
+			_pk = UserPk.Create(_id);
+			_sk = UserSk.Create();
 			_name = name;
 			_phoneNumber = phoneNumber;
 		}
 
-		public static User CreateNew(string name, string phoneNumber)
+		public static User CreateNew(Name name, PhoneNumber phoneNumber)
 		{
-			var user = new User(
-				name,
-				phoneNumber);
+			//CreationValidations(name, phoneNumber);
 
-			user.CreationValidations();
-
-			return user;
+			return new User(name, phoneNumber);
 		}
 
-		private void CreationValidations()
+		/*private static void CreationValidations(Name name, PhoneNumber phoneNumber)
 		{
-			if (string.IsNullOrEmpty(_id))
-				throw new BusinessLogicException(string.Format(ErrorReason.IdRequired, nameof(_id)));
+			// ...
+		}*/
 
-			if (string.IsNullOrEmpty(_name))
-				throw new BusinessLogicException(string.Format(ErrorReason.NameRequired, nameof(_name)));
-
-			if (string.IsNullOrEmpty(_phoneNumber))
-				throw new BusinessLogicException(string.Format(ErrorReason.PhoneNumberRequired, nameof(_phoneNumber)));
-
-			const string pattern = @"^\+\d{1,3} \(\d{1,3}\) \d{4,5}-\d{4}$";
-
-			if (!Regex.IsMatch(_phoneNumber, pattern))
-				throw new BusinessLogicException(string.Format(ErrorReason.PhoneNumberInvalid, nameof(_phoneNumber)));
-		}
-
-		public static User FromDTO(UserDTO dto)
+		public static User LoadFromPersistence(UserDTO dto)
 		{
+			if (!Guid.TryParse(dto.Id, out var parsedId))
+				throw new DomainException(string.Format(ErrorReason.User.InvalidIdLoaded, nameof(UserId)));
+
 			return new User(
-				id: dto.Id,
-				name: dto.Name,
-				phoneNumber: dto.PhoneNumber);
+				id: UserId.Create(Guid.Parse(dto.Id)),
+				name: Name.Create(dto.Name),
+				phoneNumber: PhoneNumber.Create(dto.PhoneNumber));
 		}
 
 		public UserDTO ToDTO()
 		{
 			return new UserDTO(
-				_pk,
-				_sk,
-				_id,
-				_name,
-				_phoneNumber);
+				_pk.ToString(),
+				_sk.Value,
+				_id.ToString(),
+				_name.ToString(),
+				_phoneNumber.ToString());
 		}
 
 		public UserModel ToModel()
 		{
 			return new UserModel(
-				_id,
-				_name,
-				_phoneNumber);
+				_id.ToString(),
+				_name.ToString(),
+				_phoneNumber.ToString());
 		}
 	}
 }

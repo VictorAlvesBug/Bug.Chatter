@@ -41,7 +41,7 @@ namespace Bug.Chatter.DataAccess.Repositories.DynamoDb
 		{
 			foreach (var (key, filter) in this)
 			{
-				if (IsNullOrEmpty(filter.Value))
+				if (IsNullOrWhiteSpace(filter.Value))
 					continue;
 
 				var lkey = key.ToLower();
@@ -153,7 +153,7 @@ namespace Bug.Chatter.DataAccess.Repositories.DynamoDb
 			{
 				var ks = $":{key}{count}";
 
-				if (IsNullOrEmpty(s))
+				if (IsNullOrWhiteSpace(s))
 					continue;
 
 				_expressionAttributeValues[ks] = DynamoDBEntryConversion.V2.ConvertToEntry(s);
@@ -174,7 +174,7 @@ namespace Bug.Chatter.DataAccess.Repositories.DynamoDb
 
 		public static string GetInClause(string key, IEnumerable<string> list, bool isNotIn = false)
 		{
-			if (string.IsNullOrEmpty(key))
+			if (string.IsNullOrWhiteSpace(key))
 				throw new Exception($"O parâmetro {nameof(key)} deve ser informado");
 
 			if (list is null || !list.Any())
@@ -185,7 +185,7 @@ namespace Bug.Chatter.DataAccess.Repositories.DynamoDb
 			return isNotIn ? $"NOT ({inClause})" : $"({inClause})";
 		}
 
-		public static bool IsNullOrEmpty<T>(T value)
+		public static bool IsNullOrWhiteSpace<T>(T value)
 			=> value switch
 			{
 				int _ => false,

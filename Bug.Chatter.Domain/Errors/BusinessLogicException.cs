@@ -1,4 +1,4 @@
-﻿namespace Bug.Chatter.Domain.SeedWork.Exceptions
+﻿namespace Bug.Chatter.Domain.Errors
 {
 	public class BusinessLogicException : Exception
 	{

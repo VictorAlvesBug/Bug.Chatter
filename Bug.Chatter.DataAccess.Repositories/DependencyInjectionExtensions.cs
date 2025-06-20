@@ -8,8 +8,9 @@ namespace Bug.Chatter.DataAccess.Repositories
 	{
 		public static IServiceCollection AddUserDataAccessServices(this IServiceCollection services)
 		{
-			return services.AddScoped<UserContext>()
-							.AddScoped<IUserRepository, UserRepository>();
+			return services
+				.AddScoped<UserContext>()
+				.AddScoped<IUserRepository, UserRepository>();
 		}
 	}
 }
