@@ -1,12 +1,10 @@
 ﻿using Bug.Chatter.Application.Common;
-using Bug.Chatter.Application.CreateUser;
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
-using Bug.Chatter.Domain.SeedWork.ValueObjects;
 using Bug.Chatter.Domain.Users;
 
-namespace Bug.Chatter.Application.Users
+namespace Bug.Chatter.Application.Users.CreateUser
 {
-	public class CreateUserUseCase : IUseCase<CreateUserCommand, CreateUserResult>
+	public class CreateUserUseCase : IUseCase<CreateUserCommand, Result<UserModel>>
 	{
 		private readonly IUserRepository _userRepository;
 		private readonly ICommandMapper<CreateUserCommand, User> _userMapper;
@@ -17,23 +15,20 @@ namespace Bug.Chatter.Application.Users
 			_userMapper = userMapper;
 		}
 
-		public async Task<CreateUserResult> HandleAsync(CreateUserCommand input)
+		public async Task<Result<UserModel>> HandleAsync(CreateUserCommand input)
 		{
 			try
 			{
 				var user = _userMapper.Map(input);
 				await _userRepository.SafePutAsync(user);
 
-				return new CreateUserResult(
-					ResultStatus.Success,
-					"Usuário cadastrado com sucesso",
-					user.ToModel());
+				return Result<UserModel>.Success(
+					user.ToModel(),
+					"Usuário cadastrado com sucesso");
 			}
 			catch (Exception e)
 			{
-				return new CreateUserResult(
-					ResultStatus.Failed,
-					e.Message);
+				return Result<UserModel>.Failure(e.Message);
 			}
 		}
 	}

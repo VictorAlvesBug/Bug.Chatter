@@ -1,9 +1,8 @@
 ﻿using Bug.Chatter.Application.Common;
-using Bug.Chatter.Application.Users;
 using Bug.Chatter.Domain.SeedWork.ValueObjects;
 using Bug.Chatter.Domain.Users;
 
-namespace Bug.Chatter.Application.CreateUser
+namespace Bug.Chatter.Application.Users.CreateUser
 {
 	internal class CreateUserCommandMapper : ICommandMapper<CreateUserCommand, User>
 	{

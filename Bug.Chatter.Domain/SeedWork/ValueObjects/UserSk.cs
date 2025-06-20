@@ -3,7 +3,7 @@
 	public sealed record UserSk
 	{
 		public const string Prefix = "user";
-		public const string Version = "mainSchema-v0";
+		public const string MainSchema = "mainSchema-v0";
 		
 		public string Value { get; }
 
@@ -12,7 +12,7 @@
 			Value = value;
 		}
 
-		public static UserSk Create() => new($"{Prefix}-{Version}");
+		public static UserSk Create() => new($"{Prefix}-{MainSchema}");
 
 		public override string ToString() => Value;
 	}

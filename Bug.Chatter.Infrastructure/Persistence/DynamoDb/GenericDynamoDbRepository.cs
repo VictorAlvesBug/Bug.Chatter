@@ -2,9 +2,9 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
-using Bug.Chatter.DataAccess.Repositories.SeedWork.Extensions;
+using Bug.Chatter.Infrastructure.SeedWork.Extensions;
 
-namespace Bug.Chatter.DataAccess.Repositories.DynamoDb
+namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 {
 	public abstract class GenericDynamoDbRepository<T> : IDynamoDbRepository<T> where T : class
 	{

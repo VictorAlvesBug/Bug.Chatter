@@ -2,7 +2,7 @@
 using Amazon.DynamoDBv2.DocumentModel;
 using System.Collections.Generic;
 
-namespace Bug.Chatter.DataAccess.Repositories.DynamoDb
+namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 {
 	public class DynamoDbTable : IDynamoDbTable
 	{

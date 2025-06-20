@@ -1,7 +1,7 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 
-namespace Bug.Chatter.DataAccess.Repositories.DynamoDb
+namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 {
 	public interface IDynamoDbTable
 	{

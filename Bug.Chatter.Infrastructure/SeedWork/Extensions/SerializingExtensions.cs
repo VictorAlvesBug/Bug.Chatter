@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Bug.Chatter.DataAccess.Repositories.SeedWork.Extensions
+namespace Bug.Chatter.Infrastructure.SeedWork.Extensions
 {
 	public static class SerializingExtensions
 	{
@@ -19,7 +19,7 @@ namespace Bug.Chatter.DataAccess.Repositories.SeedWork.Extensions
 			DateParseHandling = DateParseHandling.None
 		};
 
-		public static T DeserializeJson<T>(this string json)
+		public static T? DeserializeJson<T>(this string json)
 		{
 			ArgumentNullException.ThrowIfNull(json, nameof(json));
 

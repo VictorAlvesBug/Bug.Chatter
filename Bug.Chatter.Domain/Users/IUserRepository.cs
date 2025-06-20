@@ -6,8 +6,6 @@
 
 		public Task<User[]> BatchGetAsync(string[] pks);
 
-		//public Task<User[]> ListByChatIdAsync(string chatId);
-
 		public Task SafePutAsync(User user);
 
 		public Task<User> UpdateAsync(User user);

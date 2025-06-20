@@ -1,13 +1,8 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
-using Bug.Chatter.DataAccess.Repositories.SeedWork.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Bug.Chatter.Infrastructure.SeedWork.Extensions;
 
-namespace Bug.Chatter.DataAccess.Repositories.DynamoDb
+namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 {
 	public class DynamoUtil : Dictionary<string, DynamoFilter>
 	{

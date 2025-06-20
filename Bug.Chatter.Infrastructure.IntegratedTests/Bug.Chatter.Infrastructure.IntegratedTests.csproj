@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Bug.Chatter.Application\Bug.Chatter.Application.csproj" />
     <ProjectReference Include="..\Bug.Chatter.Domain\Bug.Chatter.Domain.csproj" />
+    <ProjectReference Include="..\Bug.Chatter.Infrastructure\Bug.Chatter.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

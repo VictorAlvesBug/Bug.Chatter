@@ -1,51 +1,90 @@
-using Bug.Chatter.Application;
 using Bug.Chatter.Application.Common;
+using Bug.Chatter.Application.DependencyInjection;
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
-using Bug.Chatter.Application.Users;
+using Bug.Chatter.Application.Users.CreateUser;
+using Bug.Chatter.Domain.SeedWork.ValueObjects;
 using Bug.Chatter.Domain.Users;
+using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
 namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 {
+	[TestFixture]
 	public class UserUseCaseTests
 	{
-		private readonly IServiceCollection _services;
-		private readonly IServiceProvider _serviceProvider;
-
-		public UserUseCaseTests()
-		{
-			_services = new ServiceCollection()
-				.AddUserApplicationServices();
-		}
+		private Mock<IUserRepository> _mockUserRepository;
+		private Mock<ICommandMapper<CreateUserCommand, User>> _mockUserMapper;
+		private CreateUserUseCase _createUserUseCase;
 
 		[SetUp]
 		public void Setup()
 		{
+			_mockUserRepository = new Mock<IUserRepository>();
+			_mockUserMapper = new Mock<ICommandMapper<CreateUserCommand, User>>();
+
+			_createUserUseCase = new CreateUserUseCase(
+				_mockUserRepository.Object,
+				_mockUserMapper.Object);
 		}
 
 		[Test]
-		public async Task User_ShouldBeCreated_UseCaseTest()
+		public async Task HandleAsync_WithValidCommand_ShouldReturnSuccesseResult()
 		{
 			// Arrange
 			var command = new CreateUserCommand("Victor Bugueno", "+55 (11) 97562-3736");
-			
-			var mockRepository = new Mock<IUserRepository>();
-			mockRepository
-				.Setup(repo => repo.SafePutAsync(It.IsAny<User>()))
+			var expectedUser = User.CreateNew(
+				name: Name.Create(command.Name), 
+				phoneNumber: PhoneNumber.Create(command.PhoneNumber)
+			);
+
+			_mockUserMapper
+				.Setup(m => m.Map(It.IsAny<CreateUserCommand>()))
+				.Returns(expectedUser);
+
+			_mockUserRepository
+				.Setup(r => r.SafePutAsync(It.IsAny<User>()))
 				.Returns(Task.FromResult(true));
 
-			var useCase = new CreateUserUseCase(
-				mockRepository.Object,
-				_serviceProvider.GetRequiredService<ICommandMapper<CreateUserCommand, User>>());
-
 			// Act
-			var result = await useCase.HandleAsync(command);
+			var result = await _createUserUseCase.HandleAsync(command);
 
 			// Assert
-			Assert.That(result, Is.Not.Null);
-			Assert.That(result.Status, Is.EqualTo(ResultStatus.Success));
-			Assert.That(result.HasFailed, Is.False);
+			Assert.Multiple(() =>
+			{
+				Assert.That(result, Is.Not.Null);
+				Assert.That(result.Status, Is.EqualTo(ResultStatus.Success));
+			});
+
+			_mockUserRepository.Verify(r => r.SafePutAsync(It.IsAny<User>()), Times.Once);
+		}
+
+		[Test]
+		public async Task HandleAsync_WhenRepositoryFails_ShouldReturnFailureResult()
+		{
+			// Arrange
+			var command = new CreateUserCommand("Victor Bugueno", "+55 (11) 97562-3736");
+			var expectedUser = User.CreateNew(
+				name: Name.Create(command.Name),
+				phoneNumber: PhoneNumber.Create(command.PhoneNumber)
+			);
+
+			_mockUserMapper.Setup(m => m.Map(It.IsAny<CreateUserCommand>()))
+					  .Returns(expectedUser);
+
+			_mockUserRepository
+				.Setup(r => r.SafePutAsync(It.IsAny<User>()))
+				.Throws<Exception>();
+
+			// Act
+			var result = await _createUserUseCase.HandleAsync(command);
+
+			// Assert
+			Assert.Multiple(() =>
+			{
+				Assert.That(result.Status, Is.EqualTo(ResultStatus.Failure));
+				Assert.That(result.Reasons, Is.Not.Empty);
+			});
 		}
 	}
 }

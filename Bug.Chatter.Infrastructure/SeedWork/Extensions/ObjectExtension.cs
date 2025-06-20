@@ -1,11 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Bug.Chatter.DataAccess.Repositories.SeedWork.Extensions
+namespace Bug.Chatter.Infrastructure.SeedWork.Extensions
 {
 	public static class ObjectExtension
 	{
@@ -18,7 +13,7 @@ namespace Bug.Chatter.DataAccess.Repositories.SeedWork.Extensions
 				Formatting = Formatting.None
 			};
 
-			if(nullValueHandling)
+			if (nullValueHandling)
 				settings.NullValueHandling = NullValueHandling.Ignore;
 
 			return JsonConvert.SerializeObject(obj, settings);

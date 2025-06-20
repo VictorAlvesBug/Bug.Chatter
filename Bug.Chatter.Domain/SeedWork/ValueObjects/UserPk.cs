@@ -5,11 +5,12 @@ namespace Bug.Chatter.Domain.SeedWork.ValueObjects
 	public sealed record UserPk
 	{
 		public const string Prefix = "user";
-		public UserId Value { get; }
+		private UserId _userId { get; }
+		public string Value => $"{Prefix}-{_userId}";
 
 		private UserPk(UserId value)
 		{
-			Value = value;
+			_userId = value;
 		}
 
 		public static UserPk Create(UserId value)
@@ -20,6 +21,6 @@ namespace Bug.Chatter.Domain.SeedWork.ValueObjects
 			return new UserPk(value);
 		}
 
-		public override string ToString() => $"{Prefix}-{Value}";
+		public override string ToString() => Value;
 	}
 }

@@ -1,4 +1,4 @@
-﻿namespace Bug.Chatter.Domain.Users
+﻿namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 {
 	public class UserDTO
 	{
@@ -7,13 +7,15 @@
 			string sk,
 			string id,
 			string name,
-			string phoneNumber)
+			string phoneNumber,
+			int version)
 		{
 			PK = pk;
 			SK = sk;
 			Id = id;
 			Name = name;
 			PhoneNumber = phoneNumber;
+			Version = version;
 		}
 
 		public string PK { get; }
@@ -21,5 +23,6 @@
 		public string Id { get; }
 		public string Name { get; }
 		public string PhoneNumber { get; }
+		public int Version { get; }
 	}
 }

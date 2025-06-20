@@ -6,4 +6,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.1.6" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bug.Chatter.Application\Bug.Chatter.Application.csproj" />
+    <ProjectReference Include="..\Bug.Chatter.Domain\Bug.Chatter.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

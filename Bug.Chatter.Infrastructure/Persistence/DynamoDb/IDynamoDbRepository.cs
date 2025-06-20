@@ -1,6 +1,6 @@
-﻿namespace Bug.Chatter.DataAccess.Repositories.DynamoDb
+﻿namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 {
-	public interface IDynamoDbRepository<T> : IDisposable
+	public interface IDynamoDbRepository<T> : IDisposable where T : class
 	{
 		Task<T?> GetAsync(dynamic pk, dynamic? sk = null, List<string>? attributesToGet = null);
 		

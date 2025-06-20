@@ -1,15 +1,15 @@
 ﻿using Bug.Chatter.Application.SeedWork.UseCaseStructure;
 
-namespace Bug.Chatter.Application.Users
+namespace Bug.Chatter.Application.Users.CreateUser
 {
-	public class CreateUserCommand : IInput
+	public class CreateUserCommand
 	{
 		public CreateUserCommand(
 			string name,
 			string phoneNumber)
 		{
 			Name = name;
-			PhoneNumber	= phoneNumber;
+			PhoneNumber = phoneNumber;
 		}
 
 		public string Name { get; }
