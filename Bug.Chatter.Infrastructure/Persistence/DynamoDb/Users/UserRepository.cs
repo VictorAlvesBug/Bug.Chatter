@@ -1,4 +1,5 @@
 ﻿using Bug.Chatter.Domain.Users;
+using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Configurations;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users.Mappers;
 
 namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
@@ -50,12 +51,11 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 			await _userContext.SafePutAsync(user.ToDTO(_userSk));
 		}
 
-		public async Task<User> UpdateAsync(User user)
+		public async Task UpdateAsync(User user)
 		{
 			ArgumentNullException.ThrowIfNull(user, nameof(user));
 
-			var dto = await _userContext.UpdateDynamicAsync(user.ToDTO(_userSk));
-			return dto.ToDomain();
+			await _userContext.UpdateDynamicAsync(user.ToDTO(_userSk));
 		}
 
 		public async Task DeleteAsync(string pk)

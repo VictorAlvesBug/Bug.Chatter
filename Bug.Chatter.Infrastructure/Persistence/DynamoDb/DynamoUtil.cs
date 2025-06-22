@@ -32,7 +32,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 			base.Add(key, vlr);
 		}
 
-		public Expression ToExpression()
+		public Expression? ToExpression()
 		{
 			foreach (var (key, filter) in this)
 			{
@@ -44,43 +44,43 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 				switch (filter.Value)
 				{
 					case bool v:
-						SetExpressionAttributeValues(lkey, filter.Function, v);
+						SetExpressionAttributeValues(lkey, v);
 						_expressionStatement.Add(GetExpression(lkey, filter.Function, filter.Comparator, filter.ComparisonType, filter.Prefix));
 						break;
 					case int v:
-						SetExpressionAttributeValues(lkey, filter.Function, v);
+						SetExpressionAttributeValues(lkey, v);
 						_expressionStatement.Add(GetExpression(lkey, filter.Function, filter.Comparator, filter.ComparisonType, filter.Prefix));
 						break;
 					case string v:
-						SetExpressionAttributeValues(lkey, filter.Function, v);
+						SetExpressionAttributeValues(lkey, v);
 						_expressionStatement.Add(GetExpression(lkey, filter.Function, filter.Comparator, filter.ComparisonType, filter.Prefix));
 						break;
 					case long v:
-						SetExpressionAttributeValues(lkey, filter.Function, v);
+						SetExpressionAttributeValues(lkey, v);
 						_expressionStatement.Add(GetExpression(lkey, filter.Function, filter.Comparator, filter.ComparisonType, filter.Prefix));
 						break;
 					case double v:
-						SetExpressionAttributeValues(lkey, filter.Function, v);
+						SetExpressionAttributeValues(lkey, v);
 						_expressionStatement.Add(GetExpression(lkey, filter.Function, filter.Comparator, filter.ComparisonType, filter.Prefix));
 						break;
 					case decimal v:
-						SetExpressionAttributeValues(lkey, filter.Function, v);
+						SetExpressionAttributeValues(lkey, v);
 						_expressionStatement.Add(GetExpression(lkey, filter.Function, filter.Comparator, filter.ComparisonType, filter.Prefix));
 						break;
 					case short v:
-						SetExpressionAttributeValues(lkey, filter.Function, v);
+						SetExpressionAttributeValues(lkey, v);
 						_expressionStatement.Add(GetExpression(lkey, filter.Function, filter.Comparator, filter.ComparisonType, filter.Prefix));
 						break;
 					case char v:
-						SetExpressionAttributeValues(lkey, filter.Function, v);
+						SetExpressionAttributeValues(lkey, v);
 						_expressionStatement.Add(GetExpression(lkey, filter.Function, filter.Comparator, filter.ComparisonType, filter.Prefix));
 						break;
 					case DateTime v:
-						SetExpressionAttributeValues(lkey, filter.Function, v);
+						SetExpressionAttributeValues(lkey, v);
 						_expressionStatement.Add(GetExpression(lkey, filter.Function, filter.Comparator, filter.ComparisonType, filter.Prefix));
 						break;
 					case Enum v:
-						SetExpressionAttributeValues(lkey, filter.Function, v?.GetHashCode() ?? 0);
+						SetExpressionAttributeValues(lkey, v?.GetHashCode() ?? 0);
 						_expressionStatement.Add(GetExpression(lkey, filter.Function, filter.Comparator, filter.ComparisonType, filter.Prefix));
 						break;
 					case IEnumerable<int> v:
@@ -111,7 +111,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 				_expressionAttributeNames.Add($"#{lkey}", key);
 			}
 
-			return !_expressionStatement.Any()
+			return _expressionStatement.Count == 0
 				? null
 				: new Expression
 				{
@@ -121,7 +121,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 				};
 		}
 
-		private void SetExpressionAttributeValues<T>(string key, StatementFunction function, T value)
+		private void SetExpressionAttributeValues<T>(string key, T value)
 		{
 			_expressionAttributeValues[$":{key}"] = DynamoDBEntryConversion.V2.ConvertToEntry(value);
 		}

@@ -14,7 +14,7 @@
 
 		Task SafePutAsync(T dto);
 
-		Task<T> UpdateDynamicAsync(T dto);
+		Task UpdateDynamicAsync(T dto);
 
 		Task DeleteAsync(string pk, string sk);
 

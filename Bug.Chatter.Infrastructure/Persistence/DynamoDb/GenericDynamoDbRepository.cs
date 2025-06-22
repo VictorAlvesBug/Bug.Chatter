@@ -2,6 +2,7 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
+using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Extensions;
 using Bug.Chatter.Infrastructure.SeedWork.Extensions;
 
 namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
@@ -113,8 +114,49 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 			}
 		}
 
-		public async Task<T> UpdateDynamicAsync(T dto)
-			=> (await CurrentTable.UpdateItemAsync(dto.ToDocument(nullValueHandling: true))).ConvertTo<T>();
+		public async Task UpdateDynamicAsync(T dto)
+		{
+			/*var document = dto.ToDocument();
+
+			var request = new UpdateItemRequest
+			{
+				TableName = CurrentTable.TableName,
+				Key = new Dictionary<string, AttributeValue>
+				{
+					["PK"] = new AttributeValue { S = document["PK"] },
+					["SK"] = new AttributeValue { S = document["SK"] },
+				},
+				ExpressionAttributeNames = new Dictionary<string, string>(),
+				ExpressionAttributeValues = new Dictionary<string, AttributeValue>(),
+				UpdateExpression = "",
+				ReturnValues = ReturnValue.NONE
+			};
+
+			var updateParts = new List<string>();
+
+			foreach (var  (key, value) in document)
+			{
+				if (value is null) continue;
+
+				var attrName = $"#{key}";
+				var attrValue = $":{key}";
+
+				//request.ExpressionAttributeNames[attrName] = key;
+				//request.ExpressionAttributeValues[attrValue] = value;
+				updateParts.Add($"{attrName} = {attrValue}");
+			}
+
+			if (!updateParts.Any())
+				throw new InvalidOperationException("Nenhum campo válido para atualizar");
+
+			request.UpdateExpression = $"SET {string.Join(", ", updateParts)}";
+
+			await DynamoDbClient.UpdateItemAsync(request);*/
+
+			var doc = dto.ToDocument(nullValueHandling: true);
+
+			await CurrentTable.UpdateItemAsync(doc);
+		}
 
 		public async Task DeleteAsync(string pk, string sk)
 		{

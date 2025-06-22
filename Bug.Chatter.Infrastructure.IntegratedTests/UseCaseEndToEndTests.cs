@@ -127,15 +127,16 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 				"user-2a902140-6191-4f04-9176-6fb66753cf6a",
 				"user-mainSchema-v0",
 				null,
-				"Nome Atualizado",
+				"2 Nome Atualizado",
 				null,
 				5);
 
 			// Act
-			var result = await userContext.UpdateDynamicAsync(userDto);
+			await userContext.UpdateDynamicAsync(userDto);
+
+			var result = await userContext.GetAsync(userDto.PK, userDto.SK);
 
 			TestContext.WriteLine(result.ToJson());
-			// ERRO: System.ArgumentNullException : Value cannot be null. (Parameter 'obj')
 		}
 
 		private IServiceProvider CreateScopeProvider() => _rootProvider.CreateScope().ServiceProvider;

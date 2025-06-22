@@ -1,4 +1,5 @@
 ﻿using Amazon.DynamoDBv2;
+using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Configurations;
 
 namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 {
