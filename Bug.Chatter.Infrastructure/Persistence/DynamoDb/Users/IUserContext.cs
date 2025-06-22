@@ -2,5 +2,6 @@
 {
 	public interface IUserContext : IDynamoDbRepository<UserDTO>
 	{
+		// Métodos específicos de usuário
 	}
 }

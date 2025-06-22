@@ -1,7 +1,5 @@
 ﻿using Bug.Chatter.Domain.Errors;
 using Bug.Chatter.Domain.SeedWork.ValueObjects;
-using Bug.Chatter.Domain.Users;
-using System.Xml.Linq;
 
 namespace Bug.Chatter.Domain.Tests.Users
 {

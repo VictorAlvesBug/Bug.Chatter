@@ -11,9 +11,21 @@ namespace Bug.Chatter.Application.DependencyInjection
 	{
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services)
 		{
-			return services
-				.AddScoped<ICommandMapper<CreateUserCommand, User>, CreateUserCommandMapper>()
-				.AddScoped<IUseCase<CreateUserCommand, Result<UserModel>>, CreateUserUseCase>();
+			services.AddCreateUserServices();
+			return services;
+		}
+
+		public static IServiceCollection AddCreateUserServices(this IServiceCollection services)
+		{
+			services.AddScoped<
+				ICommandMapper<CreateUserCommand, User>,
+				CreateUserCommandMapper
+			>();
+			services.AddScoped<
+				IUseCase<CreateUserCommand, Result<UserModel>>,
+				CreateUserUseCase
+			>();
+			return services;
 		}
 	}
 }
