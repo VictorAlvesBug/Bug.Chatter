@@ -2,21 +2,21 @@
 {
 	public interface IDynamoDbRepository<T> : IDisposable where T : class
 	{
-		Task<T?> GetAsync(dynamic pk, dynamic? sk = null, List<string>? attributesToGet = null);
+		Task<T?> GetAsync(string pk, string sk, List<string>? attributesToGet = null);
 		
 		Task<IEnumerable<T>> BatchGetAsync(
-			IEnumerable<(dynamic pk, dynamic sk)> keysToGet,
+			IEnumerable<(string pk, string sk)> keysToGet,
 			List<string>? attributesToGet = null);
 
 		Task<IEnumerable<T>> ListByPartitionKeyAsync(
 			string pk,
-			List<string> attributesToGet);
+			List<string>? attributesToGet = null);
 
 		Task SafePutAsync(T dto);
 
 		Task<T> UpdateDynamicAsync(T dto);
 
-		Task DeleteAsync(dynamic pk, dynamic? sk = null);
+		Task DeleteAsync(string pk, string sk);
 
 
 	}

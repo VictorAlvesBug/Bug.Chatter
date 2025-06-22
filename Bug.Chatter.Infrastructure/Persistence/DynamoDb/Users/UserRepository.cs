@@ -27,7 +27,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 		{
 			ArgumentNullException.ThrowIfNull(pks, nameof(pks));
 			
-			var dtos = await _userContext.BatchGetAsync(pks.Select(pk => ((dynamic) pk, (dynamic)_userSk)));
+			var dtos = await _userContext.BatchGetAsync(pks.Select(pk => (pk, _userSk)));
 
 			var missingKeys = MissingKeys(pks, dtos);
 
@@ -47,14 +47,14 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 		{
 			ArgumentNullException.ThrowIfNull(user, nameof(user));
 
-			await _userContext.SafePutAsync(user.ToDTO());
+			await _userContext.SafePutAsync(user.ToDTO(_userSk));
 		}
 
 		public async Task<User> UpdateAsync(User user)
 		{
 			ArgumentNullException.ThrowIfNull(user, nameof(user));
 
-			var dto = await _userContext.UpdateDynamicAsync(user.ToDTO());
+			var dto = await _userContext.UpdateDynamicAsync(user.ToDTO(_userSk));
 			return dto.ToDomain();
 		}
 

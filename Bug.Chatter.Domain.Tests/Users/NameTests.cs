@@ -1,5 +1,6 @@
 ﻿using Bug.Chatter.Domain.Errors;
 using Bug.Chatter.Domain.SeedWork.ValueObjects;
+using System.Net.Http.Headers;
 
 namespace Bug.Chatter.Domain.Tests.Users
 {
@@ -7,27 +8,27 @@ namespace Bug.Chatter.Domain.Tests.Users
 	{
 		#region Create
 		[Test]
-		public void Create_ShouldCreateNameTest()
+		public void Create_ShouldCreateName()
 		{
 			// Arrange
-			const string value = "Victor Bugueno";
+			const string name = "Victor Bugueno";
 
 			// Act
-			var actualName = Name.Create(value);
+			var actualName = Name.Create(name);
 
 			// Assert
-			Assert.That(actualName.Value, Is.EqualTo(value));
-			Assert.That(actualName.ToString(), Is.EqualTo(value));
+			Assert.That(actualName.Value, Is.EqualTo(name));
+			Assert.That(actualName.ToString(), Is.EqualTo(name));
 		}
 
 		[Test]
-		public void Create_ShouldThrowsNameIsRequiredTest()
+		[TestCase("")]
+		[TestCase(" ")]
+		[TestCase(null)]
+		public void Create_ShouldThrowsNameIsRequired(string? name)
 		{
-			// Arrange
-			const string value = null;
-
 			// Act & Assert
-			Assert.Throws<DomainException>(() => Name.Create(value));
+			Assert.Throws<DomainException>(() => Name.Create(name));
 		}
 		#endregion
 	}

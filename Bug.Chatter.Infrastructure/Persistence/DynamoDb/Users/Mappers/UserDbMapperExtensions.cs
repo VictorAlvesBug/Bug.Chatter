@@ -1,10 +1,5 @@
 ﻿using Bug.Chatter.Domain.SeedWork.ValueObjects;
 using Bug.Chatter.Domain.Users;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users.Mappers
 {
@@ -20,11 +15,11 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users.Mappers
 			);
 		}
 
-		public static UserDTO ToDTO(this User user)
+		public static UserDTO ToDTO(this User user, string userSk)
 		{
 			return new UserDTO(
 				pk: user.Pk.Value,
-				sk: user.Sk.Value,
+				sk: userSk,
 				id: user.Id.Value,
 				name: user.Name.Value,
 				phoneNumber: user.PhoneNumber.Value,

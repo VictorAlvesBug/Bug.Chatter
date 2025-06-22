@@ -31,7 +31,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 				: throw new Exception($"Erro ao carregar tabela {tableName}. Motivo: {reason}");
 		}
 
-		public async Task<T?> GetAsync(dynamic pk, dynamic? sk = null, List<string>? attributesToGet = null)
+		public async Task<T?> GetAsync(string pk, string sk, List<string>? attributesToGet = null)
 		{
 			Document doc;
 
@@ -43,23 +43,14 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 				}
 				: null;
 
-			if (sk is null)
-			{
-				doc = getItemOperationConfig == null
-					? await CurrentTable.GetItemAsync(new Primitive(pk))
-					: await CurrentTable.GetItemAsync(new Primitive(pk), getItemOperationConfig);
-			}
-			else
-			{
-				doc = getItemOperationConfig == null
-					? await CurrentTable.GetItemAsync(new Primitive(pk), new Primitive(sk))
-					: await CurrentTable.GetItemAsync(new Primitive(pk), new Primitive(sk), getItemOperationConfig);
-			}
+			doc = getItemOperationConfig == null
+				? await CurrentTable.GetItemAsync(new Primitive(pk), new Primitive(sk))
+				: await CurrentTable.GetItemAsync(new Primitive(pk), new Primitive(sk), getItemOperationConfig);
 
 			return doc?.ConvertTo<T>();
 		}
 
-		public async Task<IEnumerable<T>> BatchGetAsync(IEnumerable<(dynamic pk, dynamic sk)> keysToGet, List<string>? attributesToGet = null)
+		public async Task<IEnumerable<T>> BatchGetAsync(IEnumerable<(string pk, string sk)> keysToGet, List<string>? attributesToGet = null)
 		{
 			var batchGet = CurrentTable.CreateBatchGet();
 
@@ -76,7 +67,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 			return batchGet.Results?.ConvertTo<T>() ?? [];
 		}
 
-		public async Task<IEnumerable<T>> ListByPartitionKeyAsync(string pk, List<string> attributesToGet)
+		public async Task<IEnumerable<T>> ListByPartitionKeyAsync(string pk, List<string>? attributesToGet = null)
 		{
 			var queryConfig = new QueryOperationConfig
 			{
@@ -125,14 +116,8 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 		public async Task<T> UpdateDynamicAsync(T dto)
 			=> (await CurrentTable.UpdateItemAsync(dto.ToDocument(nullValueHandling: true))).ConvertTo<T>();
 
-		public async Task DeleteAsync(dynamic pk, dynamic sk = null)
+		public async Task DeleteAsync(string pk, string sk)
 		{
-			if (sk is null)
-			{
-				await CurrentTable.DeleteItemAsync(new Primitive(pk));
-				return;
-			}
-
 			await CurrentTable.DeleteItemAsync(new Primitive(pk), new Primitive(sk));
 		}
 

@@ -5,7 +5,6 @@ namespace Bug.Chatter.Domain.Users
 	public class User
 	{
 		public UserPk Pk { get; }
-		public UserSk Sk { get; }
 		public UserId Id { get; }
 		public Name Name { get; private set; }
 		public PhoneNumber PhoneNumber { get; private set; }
@@ -28,7 +27,6 @@ namespace Bug.Chatter.Domain.Users
 		{
 			Id = id;
 			Pk = UserPk.Create(Id);
-			Sk = UserSk.Create();
 			Name = name;
 			PhoneNumber = phoneNumber;
 			Version = version;
