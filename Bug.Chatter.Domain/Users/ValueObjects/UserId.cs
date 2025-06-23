@@ -1,13 +1,13 @@
 ﻿using Bug.Chatter.Domain.Errors;
 
-namespace Bug.Chatter.Domain.SeedWork.ValueObjects
+namespace Bug.Chatter.Domain.Users.ValueObjects
 {
 	public sealed record UserId
 	{
 		private Guid _guid { get; }
-		
+
 		public string Value => _guid.ToString();
-		
+
 		private UserId(Guid guid)
 		{
 			_guid = guid;

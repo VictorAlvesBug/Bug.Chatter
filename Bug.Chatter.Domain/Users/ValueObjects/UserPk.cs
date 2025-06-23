@@ -1,6 +1,6 @@
 ﻿using Bug.Chatter.Domain.Errors;
 
-namespace Bug.Chatter.Domain.SeedWork.ValueObjects
+namespace Bug.Chatter.Domain.Users.ValueObjects
 {
 	public sealed record UserPk
 	{
@@ -15,7 +15,7 @@ namespace Bug.Chatter.Domain.SeedWork.ValueObjects
 
 		public static UserPk Create(UserId value)
 		{
-			if(value is null)
+			if (value is null)
 				throw new DomainException(string.Format(ErrorReason.User.IdRequired, nameof(UserId)));
 
 			return new UserPk(value);

@@ -1,5 +1,5 @@
 ﻿using Bug.Chatter.Domain.Errors;
-using Bug.Chatter.Domain.SeedWork.ValueObjects;
+using Bug.Chatter.Domain.Users.ValueObjects;
 using System.Net.Http.Headers;
 
 namespace Bug.Chatter.Domain.Tests.Users

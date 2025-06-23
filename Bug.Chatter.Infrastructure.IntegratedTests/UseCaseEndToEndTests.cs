@@ -1,8 +1,6 @@
 ﻿using Bug.Chatter.Application.DependencyInjection;
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
 using Bug.Chatter.Application.Users.CreateUser;
-using Bug.Chatter.Domain.SeedWork.ValueObjects;
-using Bug.Chatter.Domain.Users;
 using Bug.Chatter.Infrastructure.DependencyInjection;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users;
 using Bug.Chatter.Infrastructure.SeedWork.Extensions;

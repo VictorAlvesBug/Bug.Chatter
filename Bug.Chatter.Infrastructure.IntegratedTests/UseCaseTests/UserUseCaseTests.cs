@@ -1,11 +1,9 @@
 using Bug.Chatter.Application.Common;
-using Bug.Chatter.Application.DependencyInjection;
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
 using Bug.Chatter.Application.Users.CreateUser;
-using Bug.Chatter.Domain.SeedWork.ValueObjects;
+using Bug.Chatter.Domain.EventStores;
 using Bug.Chatter.Domain.Users;
-using Bug.Chatter.Infrastructure.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection;
+using Bug.Chatter.Domain.Users.ValueObjects;
 using Moq;
 
 namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
@@ -14,6 +12,7 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 	public class UserUseCaseTests
 	{
 		private Mock<IUserRepository> _mockUserRepository;
+		private Mock<IEventStoreRepository<User>> _mockUserEventStoreRepository;
 		private Mock<ICommandMapper<CreateUserCommand, User>> _mockUserMapper;
 		private CreateUserUseCase _createUserUseCase;
 
@@ -21,10 +20,12 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 		public void Setup()
 		{
 			_mockUserRepository = new Mock<IUserRepository>();
+			_mockUserEventStoreRepository = new Mock<IEventStoreRepository<User>>();
 			_mockUserMapper = new Mock<ICommandMapper<CreateUserCommand, User>>();
 
 			_createUserUseCase = new CreateUserUseCase(
 				_mockUserRepository.Object,
+				_mockUserEventStoreRepository.Object,
 				_mockUserMapper.Object);
 		}
 

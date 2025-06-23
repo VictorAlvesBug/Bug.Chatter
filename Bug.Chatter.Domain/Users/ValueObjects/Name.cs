@@ -1,6 +1,6 @@
 ﻿using Bug.Chatter.Domain.Errors;
 
-namespace Bug.Chatter.Domain.SeedWork.ValueObjects
+namespace Bug.Chatter.Domain.Users.ValueObjects
 {
 	public sealed record Name
 	{
@@ -10,7 +10,7 @@ namespace Bug.Chatter.Domain.SeedWork.ValueObjects
 		{
 			Value = value;
 		}
-			
+
 		public static Name Create(string value)
 		{
 			if (string.IsNullOrWhiteSpace(value))

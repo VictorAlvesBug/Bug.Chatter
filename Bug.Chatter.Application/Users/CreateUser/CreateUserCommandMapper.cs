@@ -1,6 +1,6 @@
 ﻿using Bug.Chatter.Application.Common;
-using Bug.Chatter.Domain.SeedWork.ValueObjects;
 using Bug.Chatter.Domain.Users;
+using Bug.Chatter.Domain.Users.ValueObjects;
 
 namespace Bug.Chatter.Application.Users.CreateUser
 {

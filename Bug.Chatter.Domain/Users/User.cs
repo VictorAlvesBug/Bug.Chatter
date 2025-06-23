@@ -1,16 +1,20 @@
-﻿using Bug.Chatter.Domain.SeedWork.ValueObjects;
+﻿using Bug.Chatter.Domain.SeedWork;
+using Bug.Chatter.Domain.Users.Events;
+using Bug.Chatter.Domain.Users.ValueObjects;
+using System.Xml.Linq;
+using System;
 
 namespace Bug.Chatter.Domain.Users
 {
-	public class User
+	public class User : AggregateRoot<UserPk, string>
 	{
-		public UserPk Pk { get; }
-		public UserId Id { get; }
+		public UserId Id { get; private set; }
 		public Name Name { get; private set; }
 		public PhoneNumber PhoneNumber { get; private set; }
-		public int Version { get; }
 
-		private User(
+		private User() { }
+
+		/*private User(
 			Name name,
 			PhoneNumber phoneNumber)
 			: this(
@@ -30,20 +34,48 @@ namespace Bug.Chatter.Domain.Users
 			Name = name;
 			PhoneNumber = phoneNumber;
 			Version = version;
+		}*/
+
+		public static User Rehydrate(IEnumerable<IDomainEvent> events)
+		{
+			var user = new User();
+
+			foreach (var @event in events)
+				user.ApplyEvent((dynamic)@event);
+
+			return user;
 		}
 
 		public static User CreateNew(Name name, PhoneNumber phoneNumber)
 		{
-			return new User(name, phoneNumber);
+			var user = new User();
+
+			var @event = new UserCreated(
+				Id: UserId.Generate(),
+				Name: name,
+				PhoneNumber: phoneNumber,
+				Version: 1
+			);
+
+			user.ApplyEvent(@event);
+			user.DomainEvents.Add(@event);
+
+			return user;
 		}
 
-		public static User CreateFromPrimitives(
-			UserId id,
-			Name name,
-			PhoneNumber phoneNumber,
-			int version)
+		private void ApplyEvent(UserCreated e)
 		{
-			return new User(id, name, phoneNumber, version);
+			Pk = UserPk.Create(e.Id);
+			Sk = e.AggregateSk;
+			Id = e.Id;
+			Name = e.Name;
+			PhoneNumber = e.PhoneNumber;
+			Version = e.Version;
+		}
+
+		private void ApplyEvent(IDomainEvent e)
+		{
+			throw new InvalidOperationException($"Evento não tratado: {e.GetType().Name}");
 		}
 	}
 }

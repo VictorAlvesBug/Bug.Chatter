@@ -1,29 +1,29 @@
-﻿using Bug.Chatter.Domain.SeedWork.ValueObjects;
-using Bug.Chatter.Domain.Users;
+﻿using Bug.Chatter.Domain.Users;
+using Bug.Chatter.Domain.Users.ValueObjects;
 
 namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users.Mappers
 {
 	public static class UserDbMapperExtensions
 	{
-		public static User ToDomain(this UserDTO dto)
+		/*public static User ToDomain(this UserDTO dto)
 		{
-			return User.CreateFromPrimitives(
+			return User.Rehydrate(
 				id: UserId.Create(Guid.Parse(dto.Id)),
 				name: Name.Create(dto.Name),
 				phoneNumber: PhoneNumber.Create(dto.PhoneNumber),
 				version: dto.Version
 			);
-		}
+		}*/
 
-		public static UserDTO ToDTO(this User user, string userSk)
+		public static UserDTO ToDTO(this User domain, string userSk)
 		{
 			return new UserDTO(
-				pk: user.Pk.Value,
+				pk: domain.Pk.Value,
 				sk: userSk,
-				id: user.Id.Value,
-				name: user.Name.Value,
-				phoneNumber: user.PhoneNumber.Value,
-				version: user.Version
+				id: domain.Id.Value,
+				name: domain.Name.Value,
+				phoneNumber: domain.PhoneNumber.Value,
+				version: domain.Version
 			);
 		}
 

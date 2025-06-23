@@ -1,5 +1,7 @@
 ﻿using Bug.Chatter.Domain.Users;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Configurations;
+using Bug.Chatter.Infrastructure.Persistence.DynamoDb.EventStores;
+using Bug.Chatter.Infrastructure.Persistence.DynamoDb.EventStores.Mappers;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users.Mappers;
 
 namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
@@ -7,12 +9,13 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 	internal class UserRepository : IUserRepository
 	{
 		private readonly IUserContext _userContext;
+		private readonly IEventStoreContext _eventStoreContext;
 		private readonly string _userSk;
 
-		public UserRepository(
-			IUserContext userContext)
+		public UserRepository(IUserContext userContext, IEventStoreContext eventStoreContext)
 		{
 			_userContext = userContext;
+			_eventStoreContext = eventStoreContext;
 			_userSk = DatabaseSettings.UserSk;
 		}
 
@@ -20,15 +23,26 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 		{
 			ArgumentException.ThrowIfNullOrEmpty(pk, nameof(pk));
 
-			var dto = await _userContext.GetAsync(pk, _userSk);
-			return dto is not null ? dto.ToDomain() : null;
+			// TODO: centralizar logica de construção da pk
+			var entries = await _eventStoreContext.ListByPartitionKeyAsync($"event-{pk}-{_userSk}");
+
+			return User.Rehydrate(entries.Select(entry => entry.ToDomainEvent()));
+
+			//var dto = await _userContext.GetAsync(pk, _userSk);
+			//return dto is not null ? dto.ToDomain() : null;
 		}
 
 		public async Task<User[]> BatchGetAsync(string[] pks)
 		{
 			ArgumentNullException.ThrowIfNull(pks, nameof(pks));
-			
-			var dtos = await _userContext.BatchGetAsync(pks.Select(pk => (pk, _userSk)));
+
+			return await Task.WhenAll(pks.Select(async pk =>
+			{
+				var entries = await _eventStoreContext.ListByPartitionKeyAsync($"event-{pk}-{_userSk}");
+				return User.Rehydrate(entries.Select(entry => entry.ToDomainEvent()));
+			}));
+
+			/*var dtos = await _userContext.BatchGetAsync(pks.Select(pk => (pk, _userSk)));
 
 			var missingKeys = MissingKeys(pks, dtos);
 
@@ -36,7 +50,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 				throw new Exception(
 					$"Alguns usuários não foram encontrados. PKs não encontradas: {string.Join(", ", missingKeys)}");
 
-			return dtos.Select(dto => dto.ToDomain()).ToArray();
+			return dtos.Select(dto => dto.ToDomain()).ToArray();*/
 		}
 
 		public async Task<IEnumerable<User>> ListByChatIdAsync(string chatId)
