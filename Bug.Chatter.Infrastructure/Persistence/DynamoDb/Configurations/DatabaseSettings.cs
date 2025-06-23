@@ -1,8 +1,10 @@
 ﻿namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Configurations
 {
-	internal static class DatabaseSettings
+	public static class DatabaseSettings
 	{
-		public static string ChatterTableName = "bug-chatter";
-		public static string UserSk = "user-mainSchema-v0";
+		public const string ChatterTableName = "bug-chatter";
+		public const string UserSk = "user-mainSchema-v0";
+		public const string DatabaseDateTimeFormat = "yyyy-MM-ddTHH:mm:ss";
+		public const string FrontendDateTimeFormat = "dd/MM/yyyy - HH:mm:ss";
 	}
 }

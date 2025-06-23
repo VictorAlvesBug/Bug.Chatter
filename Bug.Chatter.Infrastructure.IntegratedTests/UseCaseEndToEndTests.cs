@@ -2,9 +2,12 @@
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
 using Bug.Chatter.Application.Users.CreateUser;
 using Bug.Chatter.Infrastructure.DependencyInjection;
+using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Configurations;
+using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Extensions;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users;
 using Bug.Chatter.Infrastructure.SeedWork.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using System.Globalization;
 
 namespace Bug.Chatter.Infrastructure.IntegratedTests
 {
@@ -60,7 +63,8 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 				null,
 				"Outro User",
 				null,
-				5);
+				5,
+				DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"));
 
 			// Act
 			await userContext.SafePutAsync(userDto);
@@ -118,6 +122,16 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 		[Test]
 		public async Task DynamoDb_UpdateDynamicAsync_EndToEndTest()
 		{
+			/*var sample = "10/01/1999 - 01:05";
+			var format = "dd/MM/yyyy - HH:mm";
+			var date1 = DateTime.ParseExact(sample, format, CultureInfo.CurrentCulture);
+			var date2 = DateTime.ParseExact(sample, format, CultureInfo.InvariantCulture);
+
+			var date3 = date1.ToUniversalTime();
+			var date4 = date2.ToUniversalTime();
+
+			Console.WriteLine("");*/
+
 			// Arrange
 			var userContext = CreateScopeProvider().GetRequiredService<IUserContext>();
 
@@ -127,7 +141,8 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 				null,
 				"2 Nome Atualizado",
 				null,
-				5);
+				5,
+				DateTime.UtcNow.ToBrazilianStringDateTime());
 
 			// Act
 			await userContext.UpdateDynamicAsync(userDto);

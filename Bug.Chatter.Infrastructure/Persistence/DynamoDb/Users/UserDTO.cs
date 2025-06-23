@@ -8,7 +8,8 @@
 			string id,
 			string name,
 			string phoneNumber,
-			int version)
+			int version,
+			string createdAt)
 		{
 			PK = pk;
 			SK = sk;
@@ -16,6 +17,7 @@
 			Name = name;
 			PhoneNumber = phoneNumber;
 			Version = version;
+			CreatedAt = createdAt;
 		}
 
 		public string PK { get; }
@@ -24,5 +26,6 @@
 		public string Name { get; }
 		public string PhoneNumber { get; }
 		public int Version { get; }
+		public string CreatedAt { get; }
 	}
 }
