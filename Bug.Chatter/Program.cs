@@ -27,28 +27,28 @@ app.Run();
 /*
 ##### Functional Requirements #####
 
-- Ao abrir o aplicativo o usu·rio pode se registrar ou entrar com uma conta existente
-- Ao se registrar, deve ser informado nome e n˙mero de celular ainda n„o registrado (n˙mero n„o pode existir ainda no banco de dados)
-- Ao entrar com uma conta, deve ser informado apenas o n˙mero de celular (precisa existir no banco de dados)
-- Ao informar o celular (para se registrar, ou entrar com uma conta) o usu·rio deve receber um cÛdigo de verificaÁ„o por SMS
-- Enquanto se registra, ao informar o cÛdigo correto, o usu·rio deve ser efetivamente cadastrado e ser redirecionado para a tela de conversas
-- Enquanto entra na conta, ao informar o cÛdigo correto, o usu·rio deve ser direcionado para a tela de conversas
-- Ao buscar por um n˙mero de celular, deve ser retornado o usu·rio correspondente, caso exista
+- Ao abrir o aplicativo o usu√°rio pode se registrar ou entrar com uma conta existente
+- Ao se registrar, deve ser informado nome e n√∫mero de celular ainda n√£o registrado (n√∫mero n√£o pode existir ainda no banco de dados)
+- Ao entrar com uma conta, deve ser informado apenas o n√∫mero de celular (precisa existir no banco de dados)
+- Ao informar o celular (para se registrar, ou entrar com uma conta) o usu√°rio deve receber um c√≥digo de verifica√ß√£o por SMS
+- Enquanto se registra, ao informar o c√≥digo correto, o usu√°rio deve ser efetivamente cadastrado e ser redirecionado para a tela de conversas
+- Enquanto entra na conta, ao informar o c√≥digo correto, o usu√°rio deve ser direcionado para a tela de conversas
+- Ao buscar por um n√∫mero de celular, deve ser retornado o usu√°rio correspondente, caso exista
 - Ao buscar por um nome de contato, devem ser retornados apenas contatos (com conversa)
-//- Ao criar um grupo, o usu·rio deve selecionar o nome do grupo e uma lista de usu·rios (contatos novos ou j· existentes) para serem adicionados ao grupo
-//- Ao criar um grupo, o usu·rio pode buscar por contatos j· existentes (por nome ou n˙mero) ou por contatos novos (por n˙mero)
-//- Ao criar um grupo, o usu·rio que criou È adicionado como administrador do grupo
-//- Em grupos, apenas administradores conseguem adicionar novos participantes, por nome (contatos existentes) ou n˙mero (qualquer usu·rio)
+//- Ao criar um grupo, o usu√°rio deve selecionar o nome do grupo e uma lista de usu√°rios (contatos novos ou j√° existentes) para serem adicionados ao grupo
+//- Ao criar um grupo, o usu√°rio pode buscar por contatos j√° existentes (por nome ou n√∫mero) ou por contatos novos (por n√∫mero)
+//- Ao criar um grupo, o usu√°rio que criou √© adicionado como administrador do grupo
+//- Em grupos, apenas administradores conseguem adicionar novos participantes, por nome (contatos existentes) ou n√∫mero (qualquer usu√°rio)
 //- Em grupos, apenas administradores conseguem remover um participante do grupo
 //- Em grupos, qualquer participante pode sair do grupo
-- Em uma conversa direta, ao enviar a primeira mensagem, deve ser criado um registro de conversa direta entre ambos os usu·rios, caso ainda n„o exista
+- Em uma conversa direta, ao enviar a primeira mensagem, deve ser criado um registro de conversa direta entre ambos os usu√°rios, caso ainda n√£o exista
 //- Ao escrever uma mensagem, ela deve ser salva com status Typing (digitando)
-- Ao tentar enviar uma mensagem enquanto estiver sem internet, armazen·-la num cache
-- Ao reestabelecer a conex„o ‡ internet, enviar mensagens em cache
-- Ao enviar uma mensagem, ela deve ser salva com status Sent (enviada) // e com status de visualizaÁ„o Sent (enviada)
-- Ao enviar uma mensagem, todos os usu·rios participantes devem ser notificados, exceto quem enviou a mensagem
-//- Ao ser recebida por todos os usu·rios, uma mensagem deve ter seu status de visualizaÁ„o marcado como Delivered (entregue)
-//- Ao ser lida por todos os usu·rios, uma mensagem deve ter seu status de visualizaÁ„o marcado como Read (lida)
+- Ao tentar enviar uma mensagem enquanto estiver sem internet, armazen√°-la num cache
+- Ao reestabelecer a conex√£o √† internet, enviar mensagens em cache
+- Ao enviar uma mensagem, ela deve ser salva com status Sent (enviada) // e com status de visualiza√ß√£o Sent (enviada)
+- Ao enviar uma mensagem, todos os usu√°rios participantes devem ser notificados, exceto quem enviou a mensagem
+//- Ao ser recebida por todos os usu√°rios, uma mensagem deve ter seu status de visualiza√ß√£o marcado como Delivered (entregue)
+//- Ao ser lida por todos os usu√°rios, uma mensagem deve ter seu status de visualiza√ß√£o marcado como Read (lida)
 
 
 
@@ -99,30 +99,30 @@ Result(resultStatus, reason) NotifyNewMessage(string userId, string messageId, s
 ##### Entities #####
 
 --> User
-string Id
-string Name
-string PhoneNumber
-string[] ChatIds
-string[] BlockedUserIds
+UserId Id
+Name Name
+PhoneNumber PhoneNumber
+ChatId[] ChatIds
+UserId[] BlockedUserIds
 
 
 --> Chat
-string Id
+ChatId Id
 ChatType ChatType
-string Name
+Name Name
 ChatUser[] Users
 
 
 --> ChatUser
-string UserId
+UserId UserId
 ChatUserRole ChatUserRole
 
 
 --> Message
-string Id
-string ChatId
-string SenderUserId
-string Content
+MessageId Id
+ChatId ChatId
+UserId SenderUserId
+Content Content
 MessageStatus Status
 
 
@@ -155,13 +155,26 @@ Rejected
 
 
 
+UserId : BaseGuidId
+ChatId : BaseGuidId
+MessageId : BaseGuidId
+
+Content
+private const int MAX_CONTENT_LENGTH = 500;
+public string Value;
+if (string.IsNullOrWhiteSpace(value))
+if (value.Length > MAX_CONTENT_LENGTH)
+
+
+
+
 ##### Gherkin #####
 
 
---> Cen·rio: 
+--> Cen√°rio: 
 DADO 
 QUANDO 
 // E 
-ENT√O 
+ENT√ÉO 
 
 */
