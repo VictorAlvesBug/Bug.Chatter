@@ -1,5 +1,5 @@
 ﻿using Bug.Chatter.Domain.Errors;
-using Bug.Chatter.Domain.Users.ValueObjects;
+using Bug.Chatter.Domain.ValueObjects;
 
 namespace Bug.Chatter.Domain.Tests.Users
 {

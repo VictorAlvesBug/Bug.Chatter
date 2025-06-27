@@ -1,5 +1,6 @@
 ﻿using Bug.Chatter.Domain.Errors;
-using Bug.Chatter.Domain.Users.ValueObjects;
+using Bug.Chatter.Domain.ValueObjects;
+using System.Text;
 
 namespace Bug.Chatter.Domain.Tests.Users
 {
@@ -28,6 +29,22 @@ namespace Bug.Chatter.Domain.Tests.Users
 		{
 			// Act & Assert
 			Assert.Throws<DomainException>(() => Name.Create(name));
+		}
+
+		[Test]
+		public void Create_ShouldThrowsNameIsTooLarge()
+		{
+			// Arrange
+			const int maxNameLength = 50;
+			var sbName = new StringBuilder();
+
+			for (int i = 0; i < maxNameLength + 1; i++)
+			{
+				sbName.Append('#');
+			}
+
+			// Act & Assert
+			Assert.Throws<DomainException>(() => Name.Create(sbName.ToString()));
 		}
 		#endregion
 	}

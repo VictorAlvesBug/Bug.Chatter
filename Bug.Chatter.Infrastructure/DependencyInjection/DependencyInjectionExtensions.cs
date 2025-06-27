@@ -12,6 +12,7 @@ namespace Bug.Chatter.Infrastructure.DependencyInjection
 		{
 			services.AddScoped<IDynamoDbTable, DynamoDbTable>();
 			services.AddAWSService<IAmazonDynamoDB>();
+			services.AddMemoryCache();
 
 			services.AddScoped<IUserContext, UserContext>();
 			services.AddScoped<IUserRepository, UserRepository>();

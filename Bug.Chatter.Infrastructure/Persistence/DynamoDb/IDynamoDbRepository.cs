@@ -3,7 +3,9 @@
 	public interface IDynamoDbRepository<T> : IDisposable where T : class
 	{
 		Task<T?> GetAsync(string pk, string sk, List<string>? attributesToGet = null);
-		
+
+		Task<IEnumerable<T>> ListByIndexKeysAsync(string indexName, string indexPk, string? indexSk = null, List<string>? attributesToGet = null);
+
 		Task<IEnumerable<T>> BatchGetAsync(
 			IEnumerable<(string pk, string sk)> keysToGet,
 			List<string>? attributesToGet = null);

@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="SeedWork\" />
-    <Folder Include="Users\Aggregates\" />
   </ItemGroup>
 
   <ItemGroup>

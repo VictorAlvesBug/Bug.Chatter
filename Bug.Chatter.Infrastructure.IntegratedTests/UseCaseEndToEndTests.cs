@@ -1,13 +1,11 @@
 ﻿using Bug.Chatter.Application.DependencyInjection;
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
-using Bug.Chatter.Application.Users.CreateUser;
+using Bug.Chatter.Application.Users.ValidateNew;
 using Bug.Chatter.Infrastructure.DependencyInjection;
-using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Configurations;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Extensions;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users;
 using Bug.Chatter.Infrastructure.SeedWork.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using System.Globalization;
 
 namespace Bug.Chatter.Infrastructure.IntegratedTests
 {
@@ -32,15 +30,15 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 		}
 
 		[Test]
-		public async Task HandleAsync_CreateUserUseCase_EndToEndTest()
+		public async Task HandleAsync_ValidateNewUserUseCase_EndToEndTest()
 		{
 			// Arrange
-			var createUserUseCase = CreateScopeProvider().GetRequiredService<CreateUserUseCase>();
+			var validateNewUserUseCase = CreateScopeProvider().GetRequiredService<ValidateNewUserUseCase>();
 
-			var command = new CreateUserCommand("Victor Bugueno", "+55 (11) 97562-3736");
+			var command = new ValidateNewUserCommand("Victor Bugueno", "+55 (11) 97562-3736");
 
 			// Act
-			var result = await createUserUseCase.HandleAsync(command);
+			var result = await validateNewUserUseCase.HandleAsync(command);
 
 			// Assert
 			Assert.Multiple(() =>
@@ -148,6 +146,18 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 			await userContext.UpdateDynamicAsync(userDto);
 
 			var result = await userContext.GetAsync(userDto.PK, userDto.SK);
+
+			TestContext.WriteLine(result.ToJson());
+		}
+
+		[Test]
+		public async Task DynamoDb_ListByIndexKeysAsync_EndToEndTest()
+		{
+			// Arrange
+			var userContext = CreateScopeProvider().GetRequiredService<IUserContext>();
+
+			// Act
+			var result = await userContext.ListByIndexKeysAsync("PhoneNumber-SK-index", "+55 (11) 97562-3736");
 
 			TestContext.WriteLine(result.ToJson());
 		}

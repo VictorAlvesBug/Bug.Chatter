@@ -1,4 +1,4 @@
-﻿using Bug.Chatter.Domain.Users.ValueObjects;
+﻿using Bug.Chatter.Domain.ValueObjects;
 using System;
 
 namespace Bug.Chatter.Domain.Users
@@ -6,7 +6,7 @@ namespace Bug.Chatter.Domain.Users
 	public class User
 	{
 		public UserPk Pk { get; protected init; }
-		public UserId Id { get; protected init; }
+		public BaseId Id { get; protected init; }
 		public Name Name { get; private set; }
 		public PhoneNumber PhoneNumber { get; private set; }
 		public int Version { get; private set; }
@@ -16,7 +16,7 @@ namespace Bug.Chatter.Domain.Users
 			Name name,
 			PhoneNumber phoneNumber)
 			: this(
-				id: UserId.Generate(),
+				id: BaseId.Generate(),
 				name,
 				phoneNumber,
 				version: 1,
@@ -24,7 +24,7 @@ namespace Bug.Chatter.Domain.Users
 		{ }
 
 		private User(
-			UserId id,
+			BaseId id,
 			Name name,
 			PhoneNumber phoneNumber,
 			int version,
@@ -39,7 +39,7 @@ namespace Bug.Chatter.Domain.Users
 		}
 
 		public static User Rehydrate(
-			UserId id,
+			BaseId id,
 			Name name,
 			PhoneNumber phoneNumber,
 			int version,

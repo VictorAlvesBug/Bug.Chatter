@@ -2,8 +2,10 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
-using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Extensions;
 using Bug.Chatter.Infrastructure.SeedWork.Extensions;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using System;
 
 namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 {
@@ -14,15 +16,19 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 
 		protected readonly IDynamoDbTable CurrentTable;
 
+		private readonly IMemoryCache _memoryCache;
+
 		protected GenericDynamoDbRepository(
 			IAmazonDynamoDB ddbClient,
-			string tableName)
-			: this(ddbClient, new DynamoDbTable(), tableName) { }
+			string tableName,
+			IMemoryCache memoryCache)
+			: this(ddbClient, new DynamoDbTable(), tableName, memoryCache) { }
 
 		protected GenericDynamoDbRepository(
 			IAmazonDynamoDB ddbClient,
 			IDynamoDbTable table,
-			string tableName)
+			string tableName,
+			IMemoryCache memoryCache)
 		{
 			DynamoDbClient = ddbClient;
 			TableName = tableName;
@@ -30,6 +36,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 				table.TryLoadTable(ddbClient, tableName, out var currentTable, out string reason)
 				? currentTable
 				: throw new Exception($"Erro ao carregar tabela {tableName}. Motivo: {reason}");
+			_memoryCache = memoryCache;
 		}
 
 		public async Task<T?> GetAsync(string pk, string sk, List<string>? attributesToGet = null)
@@ -49,6 +56,36 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 				: await CurrentTable.GetItemAsync(new Primitive(pk), new Primitive(sk), getItemOperationConfig);
 
 			return doc?.ConvertTo<T>();
+		}
+
+		public async Task<IEnumerable<T>> ListByIndexKeysAsync(string indexName, string indexPk, string? indexSk = null, List<string>? attributesToGet = null)
+		{
+			var indexes = await GetIndexAsync(indexName)
+				?? throw new Exception($"Nenhum índice '{indexName}' foi encontrado na tabela '{CurrentTable.TableName}'");
+
+			var queryOperationConfig =
+				new QueryOperationConfig
+				{
+					IndexName = indexName,
+					Select = SelectValues.AllProjectedAttributes,
+					KeyExpression = indexSk is null
+						?
+						new DynamoUtil
+						{
+							{ "PhoneNumber", indexPk }
+						}.ToExpression()
+						:
+						new DynamoUtil
+						{
+							{ "PhoneNumber", indexPk },
+							{ "SK", indexSk }
+						}.ToExpression()
+				};
+
+			var keysSearch = CurrentTable.Query(queryOperationConfig);
+			var keys = (await keysSearch.GetRemainingAsync()).Select(doc => (doc["PK"].AsString(), doc["SK"].AsString()));
+
+			return await BatchGetAsync(keys, attributesToGet);
 		}
 
 		public async Task<IEnumerable<T>> BatchGetAsync(IEnumerable<(string pk, string sk)> keysToGet, List<string>? attributesToGet = null)
@@ -116,43 +153,6 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 
 		public async Task UpdateDynamicAsync(T dto)
 		{
-			/*var document = dto.ToDocument();
-
-			var request = new UpdateItemRequest
-			{
-				TableName = CurrentTable.TableName,
-				Key = new Dictionary<string, AttributeValue>
-				{
-					["PK"] = new AttributeValue { S = document["PK"] },
-					["SK"] = new AttributeValue { S = document["SK"] },
-				},
-				ExpressionAttributeNames = new Dictionary<string, string>(),
-				ExpressionAttributeValues = new Dictionary<string, AttributeValue>(),
-				UpdateExpression = "",
-				ReturnValues = ReturnValue.NONE
-			};
-
-			var updateParts = new List<string>();
-
-			foreach (var  (key, value) in document)
-			{
-				if (value is null) continue;
-
-				var attrName = $"#{key}";
-				var attrValue = $":{key}";
-
-				//request.ExpressionAttributeNames[attrName] = key;
-				//request.ExpressionAttributeValues[attrValue] = value;
-				updateParts.Add($"{attrName} = {attrValue}");
-			}
-
-			if (!updateParts.Any())
-				throw new InvalidOperationException("Nenhum campo válido para atualizar");
-
-			request.UpdateExpression = $"SET {string.Join(", ", updateParts)}";
-
-			await DynamoDbClient.UpdateItemAsync(request);*/
-
 			var doc = dto.ToDocument(nullValueHandling: true);
 
 			await CurrentTable.UpdateItemAsync(doc);
@@ -161,6 +161,28 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 		public async Task DeleteAsync(string pk, string sk)
 		{
 			await CurrentTable.DeleteItemAsync(new Primitive(pk), new Primitive(sk));
+		}
+
+		private async Task<DynamoDbIndex?> GetIndexAsync(string indexName)
+		{
+			var indexes = await _memoryCache.GetOrCreateAsync(CurrentTable.TableName, async entry => {
+				var response = await DynamoDbClient.DescribeTableAsync(CurrentTable.TableName);
+
+				entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+
+				return response.Table.GlobalSecondaryIndexes.Select(gsi =>
+				{
+					var indexPkName = gsi.KeySchema.Find(ks => ks.KeyType == KeyType.HASH)?.AttributeName ?? "PK";
+					var indexSkName = gsi.KeySchema.Find(ks => ks.KeyType == KeyType.RANGE)?.AttributeName;
+
+					if (indexSkName is null)
+						return new DynamoDbIndex(gsi.IndexName, indexPkName);
+
+					return new DynamoDbIndex(gsi.IndexName, indexPkName, indexSkName);
+				});
+			});
+
+			return indexes?.FirstOrDefault(i => i.IndexName == indexName);
 		}
 
 		~GenericDynamoDbRepository() { }

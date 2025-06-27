@@ -1,87 +1,111 @@
-using Bug.Chatter.Application.Common;
-using Bug.Chatter.Application.SeedWork.UseCaseStructure;
-using Bug.Chatter.Application.Users.CreateUser;
-using Bug.Chatter.Domain.Users;
-using Bug.Chatter.Domain.Users.ValueObjects;
+using Bug.Chatter.Application.DependencyInjection;
+using Bug.Chatter.Infrastructure.DependencyInjection;
+using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
 namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 {
 	[TestFixture]
-	public class UserUseCaseTests
+	public partial class UserUseCaseTests
 	{
-		private Mock<IUserRepository> _mockUserRepository;
-		private Mock<ICommandMapper<CreateUserCommand, User>> _mockUserMapper;
-		private CreateUserUseCase _createUserUseCase;
+		private readonly Mock<IUserContext> _mockUserContext;
+
+		private readonly IServiceProvider _scopeProvider;
+
+		public UserUseCaseTests()
+		{
+			var services = new ServiceCollection();
+			services.AddApplicationServices();
+			services.AddInfrastructureServices();
+
+			_mockUserContext = new Mock<IUserContext>();
+			OverrideWithMockUserContext(services, _mockUserContext);
+
+			var _rootProvider = services.BuildServiceProvider(validateScopes: true);
+			_scopeProvider = _rootProvider.CreateScope().ServiceProvider;
+		}
 
 		[SetUp]
 		public void Setup()
 		{
-			_mockUserRepository = new Mock<IUserRepository>();
-			_mockUserMapper = new Mock<ICommandMapper<CreateUserCommand, User>>();
-
-			_createUserUseCase = new CreateUserUseCase(
-				_mockUserRepository.Object,
-				_mockUserMapper.Object);
+			Mock.Get(_mockUserContext.Object).Invocations.Clear();
 		}
 
-		[Test]
-		public async Task HandleAsync_WithValidCommand_ShouldReturnSuccesseResult()
+		private ServiceCollection OverrideWithMockUserContext(ServiceCollection services, Mock<IUserContext> mockUserContext)
 		{
-			// Arrange
-			var command = new CreateUserCommand("Victor Bugueno", "+55 (11) 97562-3736");
-			var expectedUser = User.CreateNew(
-				name: Name.Create(command.Name), 
-				phoneNumber: PhoneNumber.Create(command.PhoneNumber)
-			);
+			UserDTO[] mockedUsers = [
+				new(
+					pk: "user-094b1c2d-ee50-4c68-a18a-8dca65d450c6",
+					sk: "user-mainSchema-v0",
+					id: "094b1c2d-ee50-4c68-a18a-8dca65d450c6",
+					name: "Victor Bugueno",
+					phoneNumber: "+55 (11) 97562-3736",
+					version: 999,
+					createdAt: "2025-06-27T00:00:00"),
+				new(
+					pk: "user-ea9983c8-be00-4307-93ad-635d961de718",
+					sk: "user-mainSchema-v0",
+					id: "ea9983c8-be00-4307-93ad-635d961de718",
+					name: "Fatima Alves",
+					phoneNumber: "+55 (11) 98237-5687",
+					version: 999,
+					createdAt: "2025-06-27T00:00:00")
+			];
 
-			_mockUserMapper
-				.Setup(m => m.Map(It.IsAny<CreateUserCommand>()))
-				.Returns(expectedUser);
+			mockUserContext
+				.Setup(mock => mock.GetAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()))
+				.ReturnsAsync((string pk, string sk, List<string> _) =>
+					mockedUsers.FirstOrDefault(user => user.PK == pk && user.SK == sk)
+				);
 
-			_mockUserRepository
-				.Setup(r => r.SafePutAsync(It.IsAny<User>()))
-				.Returns(Task.FromResult(true));
+			mockUserContext
+				.Setup(mock => mock.ListByIndexKeysAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()))
+				.ReturnsAsync((string indexName, string indexPkValue, string indexSkValue, List<string> _) =>
+				{
+					var parts = indexName.Split('-');
+					var indexPkName = parts[0];
+					var indexSkName = parts[1];
 
-			// Act
-			var result = await _createUserUseCase.HandleAsync(command);
+					return mockedUsers.Where(user =>
+					{
+						var userIndexPkValue = user.GetType().GetProperty(indexPkName)?.GetValue(user)?.ToString();
+						var userIndexSkValue = user.GetType().GetProperty(indexSkName)?.GetValue(user)?.ToString();
 
-			// Assert
-			Assert.Multiple(() =>
-			{
-				Assert.That(result, Is.Not.Null);
-				Assert.That(result.Status, Is.EqualTo(ResultStatus.Success));
-			});
+						if (indexSkValue is null)
+							return userIndexPkValue == indexPkValue;
 
-			_mockUserRepository.Verify(r => r.SafePutAsync(It.IsAny<User>()), Times.Once);
-		}
+						return userIndexPkValue == indexPkValue && userIndexSkValue == indexSkValue;
+					});
+				});
 
-		[Test]
-		public async Task HandleAsync_WhenRepositoryFails_ShouldReturnFailureResult()
-		{
-			// Arrange
-			var command = new CreateUserCommand("Victor Bugueno", "+55 (11) 97562-3736");
-			var expectedUser = User.CreateNew(
-				name: Name.Create(command.Name),
-				phoneNumber: PhoneNumber.Create(command.PhoneNumber)
-			);
+			mockUserContext
+				.Setup(mock => mock.BatchGetAsync(It.IsAny<IEnumerable<(string, string)>>(), It.IsAny<List<string>>()))
+				.ReturnsAsync((IEnumerable<(string, string)> keysList, List<string> _) => 
+					mockedUsers.Where(user => 
+						keysList.Any(keys => keys.Item1 == user.PK && keys.Item2 == user.SK)
+					)
+				);
 
-			_mockUserMapper.Setup(m => m.Map(It.IsAny<CreateUserCommand>()))
-					  .Returns(expectedUser);
+			mockUserContext
+				.Setup(mock => mock.ListByPartitionKeyAsync(It.IsAny<string>(), It.IsAny<List<string>>()))
+				.ReturnsAsync((string pk, List<string> _) =>
+					mockedUsers.Where(user => user.PK == pk)
+				);
 
-			_mockUserRepository
-				.Setup(r => r.SafePutAsync(It.IsAny<User>()))
-				.Throws<Exception>();
+			mockUserContext
+				.Setup(mock => mock.SafePutAsync(It.IsAny<UserDTO>()));
 
-			// Act
-			var result = await _createUserUseCase.HandleAsync(command);
+			mockUserContext
+				.Setup(mock => mock.UpdateDynamicAsync(It.IsAny<UserDTO>()));
 
-			// Assert
-			Assert.Multiple(() =>
-			{
-				Assert.That(result.Status, Is.EqualTo(ResultStatus.Failure));
-				Assert.That(result.Reasons, Is.Not.Empty);
-			});
+			mockUserContext
+				.Setup(mock => mock.DeleteAsync(It.IsAny<string>(), It.IsAny<string>()));
+
+
+			services.AddScoped(_ => mockUserContext.Object);
+
+			return services;
 		}
 	}
 }

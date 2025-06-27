@@ -1,7 +1,7 @@
 using Bug.Chatter.Application.DependencyInjection;
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
 using Bug.Chatter.Application.Users;
-using Bug.Chatter.Application.Users.CreateUser;
+using Bug.Chatter.Application.Users.ValidateNew;
 using Bug.Chatter.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

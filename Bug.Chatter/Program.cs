@@ -99,29 +99,29 @@ Result(resultStatus, reason) NotifyNewMessage(string userId, string messageId, s
 ##### Entities #####
 
 --> User
-UserId Id
+BaseId Id
 Name Name
 PhoneNumber PhoneNumber
-ChatId[] ChatIds
-UserId[] BlockedUserIds
+BaseId[] ChatIds
+BaseId[] BlockedUserIds
 
 
 --> Chat
-ChatId Id
+BaseId Id
 ChatType ChatType
 Name Name
 ChatUser[] Users
 
 
 --> ChatUser
-UserId UserId
+BaseId UserId
 ChatUserRole ChatUserRole
 
 
 --> Message
 MessageId Id
-ChatId ChatId
-UserId SenderUserId
+BaseId ChatId
+BaseId SenderUserId
 Content Content
 MessageStatus Status
 
@@ -155,9 +155,7 @@ Rejected
 
 
 
-UserId : BaseGuidId
-ChatId : BaseGuidId
-MessageId : BaseGuidId
+BaseId
 
 Content
 private const int MAX_CONTENT_LENGTH = 500;

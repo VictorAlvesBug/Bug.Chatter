@@ -1,7 +1,7 @@
 ﻿using Bug.Chatter.Domain.Errors;
 using System.Text.RegularExpressions;
 
-namespace Bug.Chatter.Domain.Users.ValueObjects
+namespace Bug.Chatter.Domain.ValueObjects
 {
 	public sealed record PhoneNumber
 	{

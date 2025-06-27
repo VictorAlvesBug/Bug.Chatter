@@ -1,4 +1,5 @@
 ﻿using Bug.Chatter.Domain.Users;
+using Bug.Chatter.Domain.ValueObjects;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Configurations;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users.Mappers;
 
@@ -15,19 +16,27 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 			_userSk = DatabaseSettings.UserSk;
 		}
 
-		public async Task<User?> GetAsync(string pk)
+		public async Task<User?> GetAsync(UserPk pk)
 		{
-			ArgumentException.ThrowIfNullOrEmpty(pk, nameof(pk));
+			ArgumentException.ThrowIfNullOrEmpty(pk.Value, nameof(pk));
 
-			var dto = await _userContext.GetAsync(pk, _userSk);
+			var dto = await _userContext.GetAsync(pk.Value, _userSk);
 			return dto is not null ? dto.ToDomain() : null;
 		}
 
-		public async Task<User[]> BatchGetAsync(string[] pks)
+		public async Task<User?> GetByPhoneNumberAsync(PhoneNumber phoneNumber)
+		{
+			ArgumentException.ThrowIfNullOrEmpty(phoneNumber.Value, nameof(phoneNumber));
+
+			var dtos = await _userContext.ListByIndexKeysAsync(DatabaseSettings.UserPhoneNumberSkIndex, phoneNumber.Value, _userSk);
+			return dtos.FirstOrDefault()?.ToDomain();
+		}
+
+		public async Task<User[]> BatchGetAsync(UserPk[] pks)
 		{
 			ArgumentNullException.ThrowIfNull(pks, nameof(pks));
 
-			var dtos = await _userContext.BatchGetAsync(pks.Select(pk => (pk, _userSk)));
+			var dtos = await _userContext.BatchGetAsync(pks.Select(pk => (pk.Value, _userSk)));
 
 			var missingKeys = MissingKeys(pks, dtos);
 
@@ -57,16 +66,16 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 			await _userContext.UpdateDynamicAsync(user.ToDTO(_userSk));
 		}
 
-		public async Task DeleteAsync(string pk, int expectedVersion)
+		public async Task DeleteAsync(UserPk pk, int expectedVersion)
 		{
-			ArgumentException.ThrowIfNullOrEmpty(pk, nameof(pk));
+			ArgumentException.ThrowIfNullOrEmpty(pk.Value, nameof(pk));
 
-			await _userContext.DeleteAsync(pk, _userSk);
+			await _userContext.DeleteAsync(pk.Value, _userSk);
 		}
 
-		private static string[] MissingKeys(string[] pks, IEnumerable<UserDTO> dtos)
+		private static string[] MissingKeys(UserPk[] pks, IEnumerable<UserDTO> dtos)
 		{
-			return pks.Except(dtos.Where(x => x is not null).Select(x => x.PK)).ToArray();
+			return pks.Select(pk => pk.Value).Except(dtos.Where(x => x is not null).Select(x => x.PK)).ToArray();
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿using Bug.Chatter.Domain.Errors;
-using Bug.Chatter.Domain.Users.ValueObjects;
+using Bug.Chatter.Domain.ValueObjects;
 
 namespace Bug.Chatter.Domain.Tests.Users
 {
@@ -10,7 +10,7 @@ namespace Bug.Chatter.Domain.Tests.Users
 		public void Create_ShouldCreateUserPk()
 		{
 			// Arrange
-			var userId = UserId.Generate();
+			var userId = BaseId.Generate();
 
 			// Act
 			var actualUserPk = UserPk.Create(userId);

@@ -1,12 +1,12 @@
 ﻿using Bug.Chatter.Application.Common;
 using Bug.Chatter.Domain.Users;
-using Bug.Chatter.Domain.Users.ValueObjects;
+using Bug.Chatter.Domain.ValueObjects;
 
-namespace Bug.Chatter.Application.Users.CreateUser
+namespace Bug.Chatter.Application.Users.RegisterUser
 {
-	internal class CreateUserCommandMapper : ICommandMapper<CreateUserCommand, User>
+	internal class RegisterUserCommandMapper : ICommandMapper<RegisterUserCommand, User>
 	{
-		public User Map(CreateUserCommand input)
+		public User Map(RegisterUserCommand input)
 		{
 			var name = Name.Create(input.Name);
 			var phoneNumber = PhoneNumber.Create(input.PhoneNumber);

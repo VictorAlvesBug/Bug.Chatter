@@ -1,10 +1,10 @@
 ﻿using Bug.Chatter.Application.SeedWork.UseCaseStructure;
 
-namespace Bug.Chatter.Application.Users.CreateUser
+namespace Bug.Chatter.Application.Users.RegisterUser
 {
-	public class CreateUserCommand
+	public class RegisterUserCommand
 	{
-		public CreateUserCommand(
+		public RegisterUserCommand(
 			string name,
 			string phoneNumber)
 		{

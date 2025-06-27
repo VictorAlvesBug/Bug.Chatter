@@ -1,22 +1,22 @@
 ﻿using Bug.Chatter.Domain.Errors;
 
-namespace Bug.Chatter.Domain.Users.ValueObjects
+namespace Bug.Chatter.Domain.ValueObjects
 {
 	public sealed record UserPk
 	{
 		public const string Prefix = "user";
-		private UserId _userId { get; }
+		private BaseId _userId { get; }
 		public string Value => $"{Prefix}-{_userId}";
 
-		private UserPk(UserId value)
+		private UserPk(BaseId value)
 		{
 			_userId = value;
 		}
 
-		public static UserPk Create(UserId value)
+		public static UserPk Create(BaseId value)
 		{
 			if (value is null)
-				throw new DomainException(string.Format(ErrorReason.User.IdRequired, nameof(UserId)));
+				throw new DomainException(string.Format(ErrorReason.BaseId.IdRequired, nameof(BaseId)));
 
 			return new UserPk(value);
 		}
