@@ -5,7 +5,8 @@
 		public const string ChatterTableName = "bug-chatter";
 		public const string DatabaseDateTimeFormat = "yyyy-MM-ddTHH:mm:ss";
 		public const string FrontendDateTimeFormat = "dd/MM/yyyy - HH:mm:ss";
+		public const string CodeSk = "code-mainSchema-v0";
 		public const string UserSk = "user-mainSchema-v0";
-		public const string UserPhoneNumberSkIndex = "PhoneNumber-SK-index";
+		public const string PhoneNumberSkIndex = "PhoneNumber-SK-index";
 	}
 }

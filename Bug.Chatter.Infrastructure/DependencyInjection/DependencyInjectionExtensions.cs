@@ -1,5 +1,5 @@
 ﻿using Amazon.DynamoDBv2;
-using Bug.Chatter.Domain.Users;
+using Bug.Chatter.Domain.Aggregates.Users;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users;
 using Microsoft.Extensions.DependencyInjection;

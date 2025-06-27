@@ -1,7 +1,7 @@
 ﻿using Bug.Chatter.Domain.ValueObjects;
 using System;
 
-namespace Bug.Chatter.Domain.Users
+namespace Bug.Chatter.Domain.Aggregates.Users
 {
 	public class User
 	{

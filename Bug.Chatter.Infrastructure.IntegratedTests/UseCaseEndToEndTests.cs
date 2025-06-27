@@ -1,6 +1,6 @@
-﻿using Bug.Chatter.Application.DependencyInjection;
+﻿using Bug.Chatter.Application.Aggregates.Users.ValidateNewUser;
+using Bug.Chatter.Application.DependencyInjection;
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
-using Bug.Chatter.Application.Users.ValidateNew;
 using Bug.Chatter.Infrastructure.DependencyInjection;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Extensions;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users;

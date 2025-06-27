@@ -13,12 +13,12 @@ namespace Bug.Chatter.Domain.ValueObjects
 			_userId = value;
 		}
 
-		public static UserPk Create(BaseId value)
+		public static UserPk Create(BaseId userId)
 		{
-			if (value is null)
+			if (userId is null)
 				throw new DomainException(string.Format(ErrorReason.BaseId.IdRequired, nameof(BaseId)));
 
-			return new UserPk(value);
+			return new UserPk(userId);
 		}
 
 		public override string ToString() => Value;

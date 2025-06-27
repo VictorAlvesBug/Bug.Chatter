@@ -1,6 +1,4 @@
-﻿using Bug.Chatter.Application.SeedWork.UseCaseStructure;
-
-namespace Bug.Chatter.Application.Users.RegisterUser
+﻿namespace Bug.Chatter.Application.Aggregates.Users.RegisterUser
 {
 	public class RegisterUserCommand
 	{

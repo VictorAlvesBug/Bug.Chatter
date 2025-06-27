@@ -1,8 +1,8 @@
 ﻿using Bug.Chatter.Application.Common;
-using Bug.Chatter.Domain.Users;
+using Bug.Chatter.Domain.Aggregates.Users;
 using Bug.Chatter.Domain.ValueObjects;
 
-namespace Bug.Chatter.Application.Users.RegisterUser
+namespace Bug.Chatter.Application.Aggregates.Users.RegisterUser
 {
 	internal class RegisterUserCommandMapper : ICommandMapper<RegisterUserCommand, User>
 	{

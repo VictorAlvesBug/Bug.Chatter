@@ -1,6 +1,6 @@
-﻿using Bug.Chatter.Domain.Users;
+﻿using Bug.Chatter.Domain.Aggregates.Users;
 
-namespace Bug.Chatter.Application.Users
+namespace Bug.Chatter.Application.Aggregates.Users
 {
 	public static class UserApiMapperExtensions
 	{

@@ -1,4 +1,4 @@
-﻿namespace Bug.Chatter.Application.Users
+﻿namespace Bug.Chatter.Application.Aggregates.Users
 {
 	public class UserModel
 	{

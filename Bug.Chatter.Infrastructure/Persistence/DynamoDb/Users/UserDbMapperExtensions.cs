@@ -1,11 +1,11 @@
-﻿using Bug.Chatter.Domain.Users;
+﻿using Bug.Chatter.Domain.Aggregates.Users;
 using Bug.Chatter.Domain.ValueObjects;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Configurations;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Extensions;
 using System.Globalization;
 using System.Runtime.Serialization;
 
-namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users.Mappers
+namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 {
 	public static class UserDbMapperExtensions
 	{

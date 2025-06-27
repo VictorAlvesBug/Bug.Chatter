@@ -1,25 +1,26 @@
-﻿using Bug.Chatter.Application.Common;
+﻿using Bug.Chatter.Application.Aggregates.Users;
+using Bug.Chatter.Application.Common;
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
+using Bug.Chatter.Domain.Aggregates.Users;
 using Bug.Chatter.Domain.Errors;
-using Bug.Chatter.Domain.Users;
 using Bug.Chatter.Domain.ValueObjects;
 
-namespace Bug.Chatter.Application.Users.ValidateNew
+namespace Bug.Chatter.Application.Aggregates.Users.RegisterUser
 {
-	public class ValidateNewUserUseCase : IUseCase<ValidateNewUserCommand, Result<UserModel>>
+	public class RegisterUserUseCase : IUseCase<RegisterUserCommand, Result<UserModel>>
 	{
 		private readonly IUserRepository _userRepository;
-		private readonly ICommandMapper<ValidateNewUserCommand, User> _userMapper;
+		private readonly ICommandMapper<RegisterUserCommand, User> _userMapper;
 
-		public ValidateNewUserUseCase(
+		public RegisterUserUseCase(
 			IUserRepository userRepository,
-			ICommandMapper<ValidateNewUserCommand, User> userMapper)
+			ICommandMapper<RegisterUserCommand, User> userMapper)
 		{
 			_userRepository = userRepository;
 			_userMapper = userMapper;
 		}
 
-		public async Task<Result<UserModel>> HandleAsync(ValidateNewUserCommand input)
+		public async Task<Result<UserModel>> HandleAsync(RegisterUserCommand input)
 		{
 			try
 			{
@@ -30,7 +31,11 @@ namespace Bug.Chatter.Application.Users.ValidateNew
 				if (existingUser != null)
 					return Result<UserModel>.Rejected(string.Format(ErrorReason.User.PhoneNumberMustBeUnique, nameof(PhoneNumber), user.PhoneNumber.Value));
 
-				return Result<UserModel>.Success("Usuário válido para cadastro");
+				await _userRepository.SafePutAsync(user);
+
+				return Result<UserModel>.Success(
+					user.ToModel(),
+					"Usuário cadastrado com sucesso");
 			}
 			catch (Exception e)
 			{

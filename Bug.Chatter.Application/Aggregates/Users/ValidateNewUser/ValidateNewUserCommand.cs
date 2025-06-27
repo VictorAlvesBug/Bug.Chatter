@@ -1,6 +1,4 @@
-﻿using Bug.Chatter.Application.SeedWork.UseCaseStructure;
-
-namespace Bug.Chatter.Application.Users.ValidateNew
+﻿namespace Bug.Chatter.Application.Aggregates.Users.ValidateNewUser
 {
 	public class ValidateNewUserCommand
 	{

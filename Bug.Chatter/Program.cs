@@ -55,9 +55,9 @@ app.Run();
 ##### Use Cases #####
 
 --> Code
-Result(resultStatus, reason) SendCode(string phoneNumber)
-Result(resultStatus, reason) CompareCode(string phoneNumber, string code)
-
+Result(resultStatus, reason) SendNewCode(string phoneNumber)
+Result(resultStatus, reason) ValidateCode(string phoneNumber, string code)
+// Rotina para limpar códigos de verificação expirados (via stream?)
 
 --> User
 Result(resultStatus, reason) ValidateNewUser(string name, string phoneNumber)

@@ -1,6 +1,6 @@
 ﻿using Bug.Chatter.Domain.ValueObjects;
 
-namespace Bug.Chatter.Domain.Users
+namespace Bug.Chatter.Domain.Aggregates.Users
 {
 	public interface IUserRepository
 	{

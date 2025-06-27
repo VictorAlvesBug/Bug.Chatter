@@ -1,6 +1,5 @@
-using Bug.Chatter.Application.Aggregates.Users.RegisterUser;
+using Bug.Chatter.Application.Aggregates.Users.LoginUser;
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
-using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
@@ -10,14 +9,14 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 	public partial class UserUseCaseTests
 	{
 		[Test]
-		public async Task RegisterUser_WithValidCommand_ShouldReturnSuccessResult()
+		public async Task LoginUser_WithValidCommand_ShouldReturnSuccessResult()
 		{
 			// Arrange
-			var registerUserUseCase = _scopeProvider.GetRequiredService<RegisterUserUseCase>();
-			var command = new RegisterUserCommand("Maria Alice", "+55 (11) 6966-8083");
+			var loginUserUseCase = _scopeProvider.GetRequiredService<LoginUserUseCase>();
+			var command = new LoginUserCommand("+55 (11) 97562-3736");
 
 			// Act
-			var result = await registerUserUseCase.HandleAsync(command);
+			var result = await loginUserUseCase.HandleAsync(command);
 
 			// Assert
 			Assert.Multiple(() =>
@@ -29,18 +28,17 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 			_mockUserContext.Verify(
 				r => r.ListByIndexKeysAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()),
 				Times.Once);
-			_mockUserContext.Verify(r => r.SafePutAsync(It.IsAny<UserDTO>()), Times.Once);
 		}
 
 		[Test]
-		public async Task RegisterUser_WithDuplicatedPhoneNumber_ShouldReturnRejectedResult()
+		public async Task LoginUser_WithUnknownPhoneNumber_ShouldReturnRejectedResult()
 		{
 			// Arrange
-			var registerUserUseCase = _scopeProvider.GetRequiredService<RegisterUserUseCase>();
-			var command = new RegisterUserCommand("Victor Bugueno2", "+55 (11) 97562-3736");
+			var loginUserUseCase = _scopeProvider.GetRequiredService<LoginUserUseCase>();
+			var command = new LoginUserCommand("+55 (11) 6966-8083");
 
 			// Act
-			var result = await registerUserUseCase.HandleAsync(command);
+			var result = await loginUserUseCase.HandleAsync(command);
 
 			// Assert
 			Assert.Multiple(() =>
@@ -52,7 +50,6 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 			_mockUserContext.Verify(
 				r => r.ListByIndexKeysAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()),
 				Times.Once);
-			_mockUserContext.Verify(r => r.SafePutAsync(It.IsAny<UserDTO>()), Times.Never);
 		}
 	}
 }

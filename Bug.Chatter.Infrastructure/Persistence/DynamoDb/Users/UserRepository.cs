@@ -1,7 +1,6 @@
-﻿using Bug.Chatter.Domain.Users;
+﻿using Bug.Chatter.Domain.Aggregates.Users;
 using Bug.Chatter.Domain.ValueObjects;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Configurations;
-using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users.Mappers;
 
 namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 {
@@ -18,7 +17,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 
 		public async Task<User?> GetAsync(UserPk pk)
 		{
-			ArgumentException.ThrowIfNullOrEmpty(pk.Value, nameof(pk));
+			ArgumentException.ThrowIfNullOrWhiteSpace(pk.Value, nameof(pk));
 
 			var dto = await _userContext.GetAsync(pk.Value, _userSk);
 			return dto is not null ? dto.ToDomain() : null;
@@ -26,9 +25,9 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 
 		public async Task<User?> GetByPhoneNumberAsync(PhoneNumber phoneNumber)
 		{
-			ArgumentException.ThrowIfNullOrEmpty(phoneNumber.Value, nameof(phoneNumber));
+			ArgumentException.ThrowIfNullOrWhiteSpace(phoneNumber.Value, nameof(phoneNumber));
 
-			var dtos = await _userContext.ListByIndexKeysAsync(DatabaseSettings.UserPhoneNumberSkIndex, phoneNumber.Value, _userSk);
+			var dtos = await _userContext.ListByIndexKeysAsync(DatabaseSettings.PhoneNumberSkIndex, phoneNumber.Value, _userSk);
 			return dtos.FirstOrDefault()?.ToDomain();
 		}
 
@@ -46,11 +45,6 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 
 			return dtos.Select(dto => dto.ToDomain()).ToArray();
 		}
-
-		/*public async Task<IEnumerable<User>> ListByChatIdAsync(string chatId)
-		{
-			throw new NotImplementedException();
-		}*/
 
 		public async Task SafePutAsync(User user)
 		{

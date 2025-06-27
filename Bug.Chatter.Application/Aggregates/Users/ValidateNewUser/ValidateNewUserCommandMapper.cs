@@ -1,8 +1,8 @@
 ﻿using Bug.Chatter.Application.Common;
-using Bug.Chatter.Domain.Users;
+using Bug.Chatter.Domain.Aggregates.Users;
 using Bug.Chatter.Domain.ValueObjects;
 
-namespace Bug.Chatter.Application.Users.ValidateNew
+namespace Bug.Chatter.Application.Aggregates.Users.ValidateNewUser
 {
 	internal class ValidateNewUserCommandMapper : ICommandMapper<ValidateNewUserCommand, User>
 	{

@@ -1,5 +1,5 @@
+using Bug.Chatter.Application.Aggregates.Users.ValidateNewUser;
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
-using Bug.Chatter.Application.Users.ValidateNew;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
