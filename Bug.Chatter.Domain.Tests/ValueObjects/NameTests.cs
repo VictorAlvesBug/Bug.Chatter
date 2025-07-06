@@ -2,7 +2,7 @@
 using Bug.Chatter.Domain.ValueObjects;
 using System.Text;
 
-namespace Bug.Chatter.Domain.Tests.Users
+namespace Bug.Chatter.Domain.Tests.ValueObjects
 {
 	public partial class NameTests
 	{

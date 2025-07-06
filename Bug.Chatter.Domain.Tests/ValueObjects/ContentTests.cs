@@ -2,7 +2,7 @@
 using Bug.Chatter.Domain.ValueObjects;
 using System.Text;
 
-namespace Bug.Chatter.Domain.Tests.Users
+namespace Bug.Chatter.Domain.Tests.ValueObjects
 {
 	public partial class ContentTests
 	{
@@ -17,8 +17,11 @@ namespace Bug.Chatter.Domain.Tests.Users
 			var actualContent = Content.Create(content);
 
 			// Assert
-			Assert.That(actualContent.Value, Is.EqualTo(content));
-			Assert.That(actualContent.ToString(), Is.EqualTo(content));
+			Assert.Multiple(() =>
+			{
+				Assert.That(actualContent.Value, Is.EqualTo(content));
+				Assert.That(actualContent.ToString(), Is.EqualTo(content));
+			});
 		}
 
 		[Test]
@@ -38,7 +41,8 @@ namespace Bug.Chatter.Domain.Tests.Users
 			const int maxContentLength = 500;
 			var sbContent = new StringBuilder();
 
-			for (int i = 0; i < maxContentLength+1; i++) {
+			for (int i = 0; i < maxContentLength + 1; i++)
+			{
 				sbContent.Append('#');
 			}
 

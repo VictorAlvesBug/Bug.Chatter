@@ -1,10 +1,9 @@
 ﻿using Bug.Chatter.Domain.Errors;
 using Bug.Chatter.Domain.ValueObjects;
-using System.Net.Http.Headers;
 
-namespace Bug.Chatter.Domain.Tests.Users
+namespace Bug.Chatter.Domain.Tests.ValueObjects
 {
-	public partial class BaseIdTests
+	public partial class NumericCodeTests
 	{
 		#region Create
 		[Test]
@@ -29,6 +28,27 @@ namespace Bug.Chatter.Domain.Tests.Users
 
 			// Act & Assert
 			Assert.Throws<DomainException>(() => BaseId.Create(guid));
+		}
+		#endregion
+
+		#region Generate
+		[Test]
+		public void Generate_ShouldGenerateBaseId()
+		{
+			// Act
+			var baseId = BaseId.Generate();
+
+			// Assert
+			Assert.DoesNotThrow(() => {
+				var guidFromValue = new Guid(baseId.Value);
+				var guidFromToString = new Guid(baseId.ToString());
+
+				Assert.Multiple(() =>
+				{
+					Assert.That(guidFromValue == Guid.Empty, Is.False);
+					Assert.That(guidFromToString == Guid.Empty, Is.False);
+				});
+			});
 		}
 		#endregion
 	}

@@ -4,8 +4,8 @@ namespace Bug.Chatter.Domain.ValueObjects
 {
 	public sealed record CodeStatus
 	{
-		public static readonly CodeStatus NotSentYet = new("NotSentYet");
-		public static readonly CodeStatus Sent = new("Sent");
+		public static readonly CodeStatus NotSentYet = new(nameof(NotSentYet));
+		public static readonly CodeStatus Sent = new(nameof(Sent));
 
 		public string Value { get; }
 
@@ -21,8 +21,8 @@ namespace Bug.Chatter.Domain.ValueObjects
 		{
 			return value switch
 			{
-				"NotSentYet" => NotSentYet,
-				"Sent" => Sent,
+				nameof(NotSentYet) => NotSentYet,
+				nameof(Sent) => Sent,
 				_ => throw new DomainException(string.Format(ErrorReason.Code.StatusInvalid, nameof(CodeStatus)))
 			};
 		}

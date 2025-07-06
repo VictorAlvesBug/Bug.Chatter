@@ -1,7 +1,7 @@
 ﻿using Bug.Chatter.Domain.Errors;
 using Bug.Chatter.Domain.ValueObjects;
 
-namespace Bug.Chatter.Domain.Tests.Users
+namespace Bug.Chatter.Domain.Tests.ValueObjects
 {
 	public partial class UserPkTests
 	{
@@ -16,8 +16,11 @@ namespace Bug.Chatter.Domain.Tests.Users
 			var actualUserPk = UserPk.Create(userId);
 
 			// Assert
-			Assert.That(actualUserPk.Value, Is.EqualTo($"user-{userId.Value}"));
-			Assert.That(actualUserPk.ToString(), Is.EqualTo($"user-{userId.Value}"));
+			Assert.Multiple(() =>
+			{
+				Assert.That(actualUserPk.Value, Is.EqualTo($"user-{userId.Value}"));
+				Assert.That(actualUserPk.ToString(), Is.EqualTo($"user-{userId.Value}"));
+			});
 		}
 
 		[Test]

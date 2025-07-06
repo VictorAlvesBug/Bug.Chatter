@@ -1,7 +1,7 @@
 ﻿using Bug.Chatter.Domain.Errors;
 using Bug.Chatter.Domain.ValueObjects;
 
-namespace Bug.Chatter.Domain.Tests.Users
+namespace Bug.Chatter.Domain.Tests.ValueObjects
 {
 	public partial class PhoneNumberTests
 	{
@@ -16,8 +16,11 @@ namespace Bug.Chatter.Domain.Tests.Users
 			var actualPhoneNumber = PhoneNumber.Create(phoneNumber);
 
 			// Assert
-			Assert.That(actualPhoneNumber.Value, Is.EqualTo(phoneNumber));
-			Assert.That(actualPhoneNumber.ToString(), Is.EqualTo(phoneNumber));
+			Assert.Multiple(() =>
+			{
+				Assert.That(actualPhoneNumber.Value, Is.EqualTo(phoneNumber));
+				Assert.That(actualPhoneNumber.ToString(), Is.EqualTo(phoneNumber));
+			});
 		}
 
 		[Test]

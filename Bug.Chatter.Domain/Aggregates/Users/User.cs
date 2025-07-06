@@ -1,5 +1,4 @@
 ﻿using Bug.Chatter.Domain.ValueObjects;
-using System;
 
 namespace Bug.Chatter.Domain.Aggregates.Users
 {
