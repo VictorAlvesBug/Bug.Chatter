@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bug.Chatter.Infrastructure.IntegratedTests
 {
-	internal class UseCaseEndToEndTests
+	internal class DynamoDbTests
 	{
 		private ServiceProvider _rootProvider;
 
@@ -27,25 +27,6 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 		public void TearDown()
 		{
 			_rootProvider?.Dispose();
-		}
-
-		[Test]
-		public async Task HandleAsync_ValidateNewUserUseCase_EndToEndTest()
-		{
-			// Arrange
-			var validateNewUserUseCase = CreateScopeProvider().GetRequiredService<ValidateNewUserUseCase>();
-
-			var command = new ValidateNewUserCommand("Victor Bugueno", "+55 (11) 97562-3736");
-
-			// Act
-			var result = await validateNewUserUseCase.HandleAsync(command);
-
-			// Assert
-			Assert.Multiple(() =>
-			{
-				Assert.That(result, Is.Not.Null);
-				Assert.That(result.Status, Is.EqualTo(ResultStatus.Success));
-			});
 		}
 
 		[Test]

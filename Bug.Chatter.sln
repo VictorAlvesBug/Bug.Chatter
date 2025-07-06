@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bug.Chatter.Infrastructure"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bug.Chatter.Application.Tests", "Bug.Chatter.Application.Tests\Bug.Chatter.Application.Tests.csproj", "{97B08B02-4600-4175-A0CB-02EC6F7F8A3B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bug.Chatter.Infrastructure.EndToEndTests", "Bug.Chatter.Infrastructure.EndToEndTests\Bug.Chatter.Infrastructure.EndToEndTests.csproj", "{AD99B2BE-7AAC-4872-9B5A-6DD7F760DE02}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{97B08B02-4600-4175-A0CB-02EC6F7F8A3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97B08B02-4600-4175-A0CB-02EC6F7F8A3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97B08B02-4600-4175-A0CB-02EC6F7F8A3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD99B2BE-7AAC-4872-9B5A-6DD7F760DE02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD99B2BE-7AAC-4872-9B5A-6DD7F760DE02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD99B2BE-7AAC-4872-9B5A-6DD7F760DE02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD99B2BE-7AAC-4872-9B5A-6DD7F760DE02}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -71,5 +77,6 @@ Global
 		{D998564A-82F2-4D29-A416-9647525FC134} = {EC5AF5EE-DA02-4BFD-BC5F-E535606837E0}
 		{D9CA636D-9454-4E03-90C1-0345DBEBEB7F} = {EC5AF5EE-DA02-4BFD-BC5F-E535606837E0}
 		{97B08B02-4600-4175-A0CB-02EC6F7F8A3B} = {8B7D470E-FDF9-4C10-8D79-2FBD7534D5EA}
+		{AD99B2BE-7AAC-4872-9B5A-6DD7F760DE02} = {EC5AF5EE-DA02-4BFD-BC5F-E535606837E0}
 	EndGlobalSection
 EndGlobal

@@ -7,6 +7,7 @@ using Bug.Chatter.Application.Aggregates.Users.RegisterUser;
 using Bug.Chatter.Application.Aggregates.Users.ValidateNewUser;
 using Bug.Chatter.Application.Common;
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
+using Bug.Chatter.Domain.Aggregates.Codes;
 using Bug.Chatter.Domain.Aggregates.Users;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,6 +27,8 @@ namespace Bug.Chatter.Application.DependencyInjection
 
 		public static IServiceCollection AddSendNewCodeServices(this IServiceCollection services)
 		{
+			services.AddScoped<ICommandMapper<SendNewCodeCommand, Code>,
+				SendNewCodeCommandMapper>();
 			services.AddScoped<IUseCase<SendNewCodeCommand, Result<CodeModel>>,
 				SendNewCodeUseCase>();
 			services.AddScoped<SendNewCodeUseCase>();

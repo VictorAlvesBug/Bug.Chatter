@@ -12,7 +12,7 @@ namespace Bug.Chatter.Domain.Tests.ValueObjects
 		public void Create_ShouldCreateNumericCode()
 		{
 			// Arrange
-			string value = new Random().Next(999_999).ToString();
+			string value = new Random().Next(999_999).ToString("000000");
 
 			// Act
 			var actualNumericCode = NumericCode.Create(value);

@@ -23,7 +23,7 @@ namespace Bug.Chatter.Domain.ValueObjects
 			return new NumericCode(value);
 		}
 
-		public static NumericCode Generate() => new(new Random().Next(999_999).ToString());
+		public static NumericCode Generate() => new(new Random().Next(999_999).ToString("000000"));
 
 		private static bool IsValid(string value)
 		{

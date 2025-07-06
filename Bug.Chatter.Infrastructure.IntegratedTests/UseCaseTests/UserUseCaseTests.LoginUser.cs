@@ -51,5 +51,27 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 				r => r.ListByIndexKeysAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()),
 				Times.Once);
 		}
+
+		[Test]
+		public async Task LoginUser_WithInvalidPhoneNumber_ShouldReturnFailureResult()
+		{
+			// Arrange
+			var loginUserUseCase = _scopeProvider.GetRequiredService<LoginUserUseCase>();
+			var command = new LoginUserCommand("12345678");
+
+			// Act
+			var result = await loginUserUseCase.HandleAsync(command);
+
+			// Assert
+			Assert.Multiple(() =>
+			{
+				Assert.That(result, Is.Not.Null);
+				Assert.That(result.Status, Is.EqualTo(ResultStatus.Failure));
+			});
+
+			_mockUserContext.Verify(
+				r => r.ListByIndexKeysAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()),
+				Times.Never);
+		}
 	}
 }

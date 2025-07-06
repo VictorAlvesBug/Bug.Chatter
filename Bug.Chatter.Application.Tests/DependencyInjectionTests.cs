@@ -11,7 +11,7 @@ namespace Bug.Chatter.Application.Tests
 		{
 			// Arrange
 			var services = new ServiceCollection();
-			
+
 			services.AddApplicationServices();
 			services.AddInfrastructureServices();
 
@@ -19,21 +19,35 @@ namespace Bug.Chatter.Application.Tests
 			var errorsSet = new HashSet<string>();
 
 			// Act
-			foreach (var service in services.Where(s => s.ImplementationType is not null))
+			foreach (var service in services)
 			{
+				// Skip open generic registrations
+				if (service.ServiceType.IsGenericType && service.ServiceType.ContainsGenericParameters)
+					continue;
+
 				try
 				{
 					using var scope = provider.CreateScope();
-					ActivatorUtilities.CreateInstance(scope.ServiceProvider, service.ImplementationType);
+
+					// Handle different registration types appropriately
+					if (service.ImplementationType != null)
+					{
+						ActivatorUtilities.CreateInstance(scope.ServiceProvider, service.ImplementationType);
+					}
+					else if (service.ImplementationFactory != null)
+					{
+						service.ImplementationFactory(scope.ServiceProvider);
+					}
+					// Skip instance-based registrations as they don't need validation
 				}
 				catch (Exception ex)
 				{
-					errorsSet.Add(ex.Message);
+					errorsSet.Add($"Service: {service.ServiceType.FullName}\nError: {ex.Message}");
 				}
 			}
 
 			// Assert
-			Assert.That(errorsSet, Is.Empty, string.Join("\n", errorsSet));
+			Assert.That(errorsSet, Is.Empty, string.Join("\n\n", errorsSet));
 		}
 	}
 }

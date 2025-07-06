@@ -17,6 +17,7 @@
 			public const string StatusInvalid = "{0}: Status do código de verificação inválido";
 			public const string NotFound = "{0}: Código de verificação '{1}' não encontrado";
 			public const string Expired = "{0}: Código de verificação expirado";
+			public const string GenerateCodeRetry = "Tentativa {0}: Código {1} já existe";
 		}
 
 		public static class User

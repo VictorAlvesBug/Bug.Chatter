@@ -32,6 +32,7 @@ namespace Bug.Chatter.Domain.Aggregates.Codes
 			DateTime createdAt,
 			DateTime expiresAt)
 		{
+			Pk = CodePk.Create(numericCode);
 			NumericCode = numericCode;
 			PhoneNumber = phoneNumber;
 			Status = status;

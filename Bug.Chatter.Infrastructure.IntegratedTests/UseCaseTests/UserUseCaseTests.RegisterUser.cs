@@ -54,5 +54,28 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 				Times.Once);
 			_mockUserContext.Verify(r => r.SafePutAsync(It.IsAny<UserDTO>()), Times.Never);
 		}
+
+		[Test]
+		public async Task RegisterUser_WithInvalidPhoneNumber_ShouldReturnFailureResult()
+		{
+			// Arrange
+			var registerUserUseCase = _scopeProvider.GetRequiredService<RegisterUserUseCase>();
+			var command = new RegisterUserCommand("Victor Bugueno3", "12345678");
+
+			// Act
+			var result = await registerUserUseCase.HandleAsync(command);
+
+			// Assert
+			Assert.Multiple(() =>
+			{
+				Assert.That(result, Is.Not.Null);
+				Assert.That(result.Status, Is.EqualTo(ResultStatus.Failure));
+			});
+
+			_mockUserContext.Verify(
+				r => r.ListByIndexKeysAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()),
+				Times.Never);
+			_mockUserContext.Verify(r => r.SafePutAsync(It.IsAny<UserDTO>()), Times.Never);
+		}
 	}
 }

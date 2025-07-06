@@ -4,14 +4,9 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 {
-	internal class UserContext : GenericDynamoDbRepository<UserDTO>, IUserContext
+	internal class UserContext(
+		IAmazonDynamoDB ddbClient,
+		IMemoryCache memoryCache) : GenericDynamoDbRepository<UserDTO>(ddbClient, DatabaseSettings.ChatterTableName, memoryCache), IUserContext
 	{
-		public UserContext(
-			IAmazonDynamoDB ddbClient,
-			IMemoryCache memoryCache)
-			: base(ddbClient, DatabaseSettings.ChatterTableName, memoryCache)
-		{
-			
-		}
 	}
 }

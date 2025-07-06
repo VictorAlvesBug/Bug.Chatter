@@ -2,6 +2,7 @@
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
 using Bug.Chatter.Domain.Aggregates.Codes;
 using Bug.Chatter.Domain.Errors;
+using Polly;
 
 namespace Bug.Chatter.Application.Aggregates.Codes.SendNewCode
 {
@@ -22,23 +23,34 @@ namespace Bug.Chatter.Application.Aggregates.Codes.SendNewCode
 		{
 			try
 			{
-				Code code;
-				Code? existingCode;
-				int attemptsCount = 0;
-				const int maxAttempts = 20;
+				var retryPolicy = Policy
+					.HandleResult<(Code newCode, bool codeAlreadyExists)>(
+						result => result.codeAlreadyExists
+					)
+					.Retry(
+						retryCount: 10,
+						onRetry: (result, retryCount) =>
+						{
+							var newCodeValue = result.Result.newCode.NumericCode.Value;
 
-				do
+							Console.WriteLine(string.Format(ErrorReason.Code.GenerateCodeRetry, retryCount, newCodeValue));
+						});
+
+				(Code newCode, bool codeAlreadyExists) = retryPolicy.Execute(() =>
 				{
-					code = _codeMapper.Map(input);
-					existingCode = await _codeRepository.GetAsync(code.Pk);
-					attemptsCount++;
-				}
-				while (existingCode is not null && attemptsCount < maxAttempts);
+					newCode = _codeMapper.Map(input);
 
-				if(existingCode is not null)
+					var existingCode = _codeRepository.GetAsync(newCode.Pk)
+						.GetAwaiter()
+						.GetResult();
+
+					return (newCode, existingCode is not null);
+				});
+
+				if (codeAlreadyExists)
 					return Result<CodeModel>.Rejected(string.Format(ErrorReason.Code.MaxAttemptsToGenerateCodeReached));
 
-				await _codeRepository.SafePutAsync(code);
+				await _codeRepository.SafePutAsync(newCode);
 
 				return Result<CodeModel>.Success("Um código de verificação será enviado via SMS");
 			}
