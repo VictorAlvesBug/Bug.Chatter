@@ -1,5 +1,4 @@
 ﻿using Bug.Chatter.Domain.ValueObjects;
-using static Bug.Chatter.Domain.Errors.ErrorReason;
 
 namespace Bug.Chatter.Domain.Aggregates.Codes
 {
@@ -13,7 +12,7 @@ namespace Bug.Chatter.Domain.Aggregates.Codes
 		public CodeStatus Status { get; protected init; }
 		public int Version { get; protected init; }
 		public DateTime CreatedAt { get; protected init; }
-		public DateTime ExpireAt { get; protected init; }
+		public DateTime ExpiresAt { get; protected init; }
 
 		private Code(PhoneNumber phoneNumber)
 			: this(
@@ -22,7 +21,7 @@ namespace Bug.Chatter.Domain.Aggregates.Codes
 				  status: CodeStatus.NotSentYet,
 				  version: 1,
 				  createdAt: DateTime.UtcNow,
-				  expireAt: DateTime.UtcNow.AddMinutes(_minutesToExpire))
+				  expiresAt: DateTime.UtcNow.AddMinutes(_minutesToExpire))
 		{ }
 
 		private Code(
@@ -31,14 +30,14 @@ namespace Bug.Chatter.Domain.Aggregates.Codes
 			CodeStatus status,
 			int version,
 			DateTime createdAt,
-			DateTime expireAt)
+			DateTime expiresAt)
 		{
 			NumericCode = numericCode;
 			PhoneNumber = phoneNumber;
 			Status = status;
 			Version = version;
 			CreatedAt = createdAt;
-			ExpireAt = expireAt;
+			ExpiresAt = expiresAt;
 		}
 
 		public static Code Rehydrate(
@@ -47,9 +46,9 @@ namespace Bug.Chatter.Domain.Aggregates.Codes
 			CodeStatus status,
 			int version,
 			DateTime createdAt,
-			DateTime expireAt)
+			DateTime expiresAt)
 		{
-			return new Code(numericCode, phoneNumber, status, version, createdAt, expireAt);
+			return new Code(numericCode, phoneNumber, status, version, createdAt, expiresAt);
 		}
 
 		public static Code CreateNew(PhoneNumber phoneNumber)
@@ -57,7 +56,7 @@ namespace Bug.Chatter.Domain.Aggregates.Codes
 			return new Code(phoneNumber);
 		}
 
-		public bool IsExpired() => ExpireAt < DateTime.UtcNow;
+		public bool IsExpired() => ExpiresAt < DateTime.UtcNow;
 
 		public bool PhoneNumbersMatch(string value)
 		{

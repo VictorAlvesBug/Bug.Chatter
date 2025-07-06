@@ -14,7 +14,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Codes
 				status: CodeStatus.From(dto.Status),
 				version: dto.Version,
 				createdAt: dto.CreatedAt.ToBrazilianDateTime(),
-				expireAt: dto.ExpireAt.ToBrazilianDateTime()
+				expiresAt: dto.ExpiresAt.ToBrazilianDateTime()
 			);
 		}
 
@@ -28,7 +28,8 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Codes
 				status: domain.Status.Value,
 				version: domain.Version,
 				createdAt: domain.CreatedAt.ToUtcStringDateTime(),
-				expireAt: domain.ExpireAt.ToUtcStringDateTime()
+				expiresAt: domain.ExpiresAt.ToUtcStringDateTime(),
+				ttl: domain.ExpiresAt.ToUtcTimestamp()
 			);
 		}
 	}

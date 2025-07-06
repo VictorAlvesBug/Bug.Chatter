@@ -108,5 +108,32 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Extensions
 
 			return ToBrazilianStringDateTime(utcDateTime);
 		}
+
+		/// <summary>
+		/// Converte data e hora local (Brasil) para Timestamp UTC, para armazenar no banco de dados
+		/// </summary>
+		/// <param name="brazilianDateTime">Data e hora local (Brasil)</param>
+		/// <returns>Timestamp UTC em long</returns>
+		public static long ToUtcTimestamp(this DateTime brazilianDateTime)
+		{
+			var utcDateTime = brazilianDateTime.ToUtcDateTime();
+
+			return new DateTimeOffset(utcDateTime).ToUnixTimeSeconds();
+		}
+
+		/// <summary>
+		/// Converte data e hora local (Brasil) para Timestamp UTC, para armazenar no banco de dados
+		/// </summary>
+		/// <param name="strBrazilianDateTime">Data e hora local (Brasil) em string, no formato: dd/MM/yyyy - HH:mm:ss</param>
+		/// <returns>Timestamp UTC em long</returns>
+		public static long ToUtcTimestamp(this string strBrazilianDateTime)
+		{
+			var brazilianDateTime = DateTime.ParseExact(
+				strBrazilianDateTime,
+				DatabaseSettings.FrontendDateTimeFormat,
+				CultureInfo.InvariantCulture);
+
+			return ToUtcTimestamp(brazilianDateTime);
+		}
 	}
 }

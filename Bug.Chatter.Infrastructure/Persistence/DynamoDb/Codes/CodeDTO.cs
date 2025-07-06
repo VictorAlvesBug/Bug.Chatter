@@ -10,7 +10,8 @@
 			string status,
 			int version,
 			string createdAt,
-			string expireAt)
+			string expiresAt,
+			long ttl)
 		{
 			PK = pk;
 			SK = sk;
@@ -19,7 +20,8 @@
 			Status = status;
 			Version = version;
 			CreatedAt = createdAt;
-			ExpireAt = expireAt;
+			ExpiresAt = expiresAt;
+			TTL = ttl;
 		}
 
 		public string PK { get; }
@@ -29,6 +31,7 @@
 		public string Status { get; }
 		public int Version { get; }
 		public string CreatedAt { get; }
-		public string ExpireAt { get; }
+		public string ExpiresAt { get; }
+		public long TTL { get; }
 	}
 }
