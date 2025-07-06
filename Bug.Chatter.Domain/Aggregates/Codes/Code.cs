@@ -59,9 +59,8 @@ namespace Bug.Chatter.Domain.Aggregates.Codes
 
 		public bool IsExpired() => ExpiresAt < DateTime.UtcNow;
 
-		public bool PhoneNumbersMatch(string value)
+		public bool PhoneNumbersMatch(PhoneNumber commandPhoneNumber)
 		{
-			PhoneNumber commandPhoneNumber = PhoneNumber.Create(value);
 			return commandPhoneNumber.Value == this.PhoneNumber.Value;
 		}
 	}

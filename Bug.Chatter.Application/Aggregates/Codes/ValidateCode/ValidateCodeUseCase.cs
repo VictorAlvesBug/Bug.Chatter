@@ -1,18 +1,11 @@
-﻿using Bug.Chatter.Application.Aggregates.Codes.SendNewCode;
-using Bug.Chatter.Application.Common;
-using Bug.Chatter.Application.SeedWork.UseCaseStructure;
+﻿using Bug.Chatter.Application.SeedWork.UseCaseStructure;
 using Bug.Chatter.Domain.Aggregates.Codes;
 using Bug.Chatter.Domain.Errors;
 using Bug.Chatter.Domain.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bug.Chatter.Application.Aggregates.Codes.ValidateCode
 {
-	internal class ValidateCodeUseCase : IUseCase<ValidateCodeCommand, Result<CodeModel>>
+	public class ValidateCodeUseCase : IUseCase<ValidateCodeCommand, Result<CodeModel>>
 	{
 		private readonly ICodeRepository _codeRepository;
 
@@ -26,14 +19,17 @@ namespace Bug.Chatter.Application.Aggregates.Codes.ValidateCode
 		{
 			try
 			{
-				var codePk = CodePk.Create(NumericCode.Create(input.NumericCode));
+				var phoneNumber = PhoneNumber.Create(input.PhoneNumber);
+				var numericCode = NumericCode.Create(input.NumericCode);
+				var codePk = CodePk.Create(numericCode);
+
 				var code = await _codeRepository.GetAsync(codePk);
 
 				if (code == null)
-					return Result<CodeModel>.Rejected(string.Format(ErrorReason.Code.NotFound, nameof(NumericCode)));
+					return Result<CodeModel>.Rejected(string.Format(ErrorReason.Code.NotFound, nameof(NumericCode), numericCode.Value));
 
-				if (!code.PhoneNumbersMatch(input.PhoneNumber))
-					return Result<CodeModel>.Rejected(string.Format(ErrorReason.Code.NotFound, nameof(NumericCode)));
+				if (!code.PhoneNumbersMatch(phoneNumber))
+					return Result<CodeModel>.Rejected(string.Format(ErrorReason.Code.NotFound, nameof(NumericCode), numericCode.Value));
 
 				if (code.IsExpired())
 					return Result<CodeModel>.Rejected(string.Format(ErrorReason.Code.Expired, nameof(NumericCode)));

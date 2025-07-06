@@ -34,5 +34,31 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 				r => r.SafePutAsync(It.IsAny<CodeDTO>()),
 				Times.Once);
 		}
+
+		[Test]
+		public async Task SendNewCode_WithInvalidPhoneNumber_ShouldReturnFailureResult()
+		{
+			// Arrange
+			var sendNewCodeUseCase = _scopeProvider.GetRequiredService<SendNewCodeUseCase>();
+			var command = new SendNewCodeCommand("12345678");
+
+			// Act
+			var result = await sendNewCodeUseCase.HandleAsync(command);
+
+			// Assert
+			Assert.Multiple(() =>
+			{
+				Assert.That(result, Is.Not.Null);
+				Assert.That(result.Status, Is.EqualTo(ResultStatus.Failure));
+			});
+
+			_mockCodeContext.Verify(
+				r => r.GetAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()),
+				Times.Never);
+
+			_mockCodeContext.Verify(
+				r => r.SafePutAsync(It.IsAny<CodeDTO>()),
+				Times.Never);
+		}
 	}
 }

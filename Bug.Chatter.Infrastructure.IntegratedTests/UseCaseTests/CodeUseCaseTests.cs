@@ -42,9 +42,9 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 					phoneNumber: "+55 (11) 97562-3736",
 					status: "Sent",
 					version: 999,
-					createdAt: "2025-06-27T00:00:00",
-					expiresAt: "2025-06-27T00:10:00",
-					ttl: 1750973400),
+					createdAt: "2099-01-10T01:05:00",
+					expiresAt: "2099-01-10T01:15:00",
+					ttl: 4072448700),
 				new(
 					pk: "code-654321",
 					sk: "code-mainSchema-v0",
@@ -52,9 +52,9 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 					phoneNumber: "+55 (11) 98237-5687",
 					status: "NotSentYet",
 					version: 999,
-					createdAt: "2025-07-06T00:00:00",
-					expiresAt: "2025-07-06T00:10:00",
-					ttl: 1751741400)
+					createdAt: "2099-01-10T01:05:00",
+					expiresAt: "2099-01-10T01:15:00",
+					ttl: 4072449300)
 			];
 
 			mockCodeContext
