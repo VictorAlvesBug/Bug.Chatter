@@ -46,41 +46,26 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 		[Test]
 		public async Task MultiCaseTest()
 		{
-			// Arrange
+			// Arrange & Act
 			var sendNewCodeUseCase = _scopeProvider.GetRequiredService<SendNewCodeUseCase>();
 			var sendNewCodeCommand = new SendNewCodeCommand("+55 (11) 97562-3736");
-
-
-
-			// Act
 			var sendNewCodeResult = await sendNewCodeUseCase.HandleAsync(sendNewCodeCommand);
 
+			var lastSafePutInvocation = _mockCodeContext.GetLastInvocationOf(nameof(_mockCodeContext.Object.SafePutAsync));
+			Assert.That(lastSafePutInvocation, Is.Not.Null);
 
-			// Assert
+			var receivedCodeDTO = lastSafePutInvocation!.Arguments[0] as CodeDTO;
+			Assert.That(receivedCodeDTO, Is.Not.Null);
 
-			_mockCodeContext.Verify(
-				r => r.GetAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()),
-				Times.AtLeastOnce);
-
-			_mockCodeContext.Verify(
-				r => r.SafePutAsync(It.IsAny<CodeDTO>()),
-				Times.Once);
-
-
-			// Arrange
 			var validateCodeUseCase = _scopeProvider.GetRequiredService<ValidateCodeUseCase>();
-			var validateCodeCommand = new ValidateCodeCommand("+55 (11) 97562-3736", "123456");
+			var validateCodeCommand = new ValidateCodeCommand(
+				receivedCodeDTO!.PhoneNumber,
+				receivedCodeDTO!.NumericCode
+			);
 
-			// Act
 			var validateCodeResult = await validateCodeUseCase.HandleAsync(validateCodeCommand);
 
-
-
-
-			
-
 			// Assert
-
 			_mockCodeContext.Verify(
 				r => r.GetAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()),
 				Times.AtLeastOnce);
