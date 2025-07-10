@@ -2,14 +2,14 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
+using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Configurations;
 using Bug.Chatter.Infrastructure.SeedWork.Extensions;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
-using System;
 
 namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 {
-	public abstract class GenericDynamoDbRepository<T> : IDynamoDbRepository<T> where T : class
+	public class GenericDynamoDbRepository<TEntityDTO> : IDynamoDbRepository<TEntityDTO>
+		where TEntityDTO : EntityDTO
 	{
 		protected readonly string TableName;
 		protected readonly IAmazonDynamoDB DynamoDbClient;
@@ -18,28 +18,26 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 
 		private readonly IMemoryCache _memoryCache;
 
-		protected GenericDynamoDbRepository(
+		public GenericDynamoDbRepository(
 			IAmazonDynamoDB ddbClient,
-			string tableName,
 			IMemoryCache memoryCache)
-			: this(ddbClient, new DynamoDbTable(), tableName, memoryCache) { }
+			: this(ddbClient, new DynamoDbTable(), memoryCache) { }
 
-		protected GenericDynamoDbRepository(
+		public GenericDynamoDbRepository(
 			IAmazonDynamoDB ddbClient,
 			IDynamoDbTable table,
-			string tableName,
 			IMemoryCache memoryCache)
 		{
 			DynamoDbClient = ddbClient;
-			TableName = tableName;
+			TableName = DatabaseSettings.ChatterTableName;
 			CurrentTable =
-				table.TryLoadTable(ddbClient, tableName, out var currentTable, out string reason)
+				table.TryLoadTable(ddbClient, TableName, out var currentTable, out string reason)
 				? currentTable
-				: throw new Exception($"Erro ao carregar tabela {tableName}. Motivo: {reason}");
+				: throw new Exception($"Erro ao carregar tabela {TableName}. Motivo: {reason}");
 			_memoryCache = memoryCache;
 		}
 
-		public async Task<T?> GetAsync(string pk, string sk, List<string>? attributesToGet = null)
+		public async Task<TEntityDTO?> GetAsync(string pk, string sk, List<string>? attributesToGet = null)
 		{
 			Document doc;
 
@@ -55,10 +53,10 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 				? await CurrentTable.GetItemAsync(new Primitive(pk), new Primitive(sk))
 				: await CurrentTable.GetItemAsync(new Primitive(pk), new Primitive(sk), getItemOperationConfig);
 
-			return doc?.ConvertTo<T>();
+			return doc?.ConvertTo<TEntityDTO>();
 		}
 
-		public async Task<IEnumerable<T>> ListByIndexKeysAsync(string indexName, string indexPk, string? indexSk = null, List<string>? attributesToGet = null)
+		public async Task<IEnumerable<TEntityDTO>> ListByIndexKeysAsync(string indexName, string indexPkValue, string? indexSkValue = null, List<string>? attributesToGet = null)
 		{
 			var indexes = await GetIndexAsync(indexName)
 				?? throw new Exception($"Nenhum índice '{indexName}' foi encontrado na tabela '{CurrentTable.TableName}'");
@@ -68,17 +66,17 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 				{
 					IndexName = indexName,
 					Select = SelectValues.AllProjectedAttributes,
-					KeyExpression = indexSk is null
+					KeyExpression = indexSkValue is null
 						?
 						new DynamoUtil
 						{
-							{ "PhoneNumber", indexPk }
+							{ "PhoneNumber", indexPkValue }
 						}.ToExpression()
 						:
 						new DynamoUtil
 						{
-							{ "PhoneNumber", indexPk },
-							{ "SK", indexSk }
+							{ "PhoneNumber", indexPkValue },
+							{ "SK", indexSkValue }
 						}.ToExpression()
 				};
 
@@ -88,7 +86,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 			return await BatchGetAsync(keys, attributesToGet);
 		}
 
-		public async Task<IEnumerable<T>> BatchGetAsync(IEnumerable<(string pk, string sk)> keysToGet, List<string>? attributesToGet = null)
+		public async Task<IEnumerable<TEntityDTO>> BatchGetAsync(IEnumerable<(string pk, string sk)> keysToGet, List<string>? attributesToGet = null)
 		{
 			var batchGet = CurrentTable.CreateBatchGet();
 
@@ -102,10 +100,10 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 
 			await batchGet.ExecuteAsync();
 
-			return batchGet.Results?.ConvertTo<T>() ?? [];
+			return batchGet.Results?.ConvertTo<TEntityDTO>() ?? [];
 		}
 
-		public async Task<IEnumerable<T>> ListByPartitionKeyAsync(string pk, List<string>? attributesToGet = null)
+		public async Task<IEnumerable<TEntityDTO>> ListByPartitionKeyAsync(string pk, List<string>? attributesToGet = null)
 		{
 			var queryConfig = new QueryOperationConfig
 			{
@@ -122,10 +120,10 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 			var search = CurrentTable.Query(queryConfig);
 
 			return (await search.GetRemainingAsync())
-				.ConvertTo<T>();
+				.ConvertTo<TEntityDTO>();
 		}
 
-		public async Task SafePutAsync(T dto)
+		public async Task SafePutAsync(TEntityDTO dto)
 		{
 			try
 			{
@@ -151,7 +149,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 			}
 		}
 
-		public async Task UpdateDynamicAsync(T dto)
+		public async Task UpdateDynamicAsync(TEntityDTO dto)
 		{
 			var doc = dto.ToDocument(nullValueHandling: true);
 
@@ -184,8 +182,6 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 
 			return indexes?.FirstOrDefault(i => i.IndexName == indexName);
 		}
-
-		~GenericDynamoDbRepository() { }
 
 		public void Dispose()
 		{

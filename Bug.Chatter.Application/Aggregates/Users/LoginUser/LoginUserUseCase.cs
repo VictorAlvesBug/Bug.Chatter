@@ -27,11 +27,9 @@ namespace Bug.Chatter.Application.Aggregates.Users.LoginUser
 				if (user == null)
 					return Result<UserModel>.Rejected(string.Format(ErrorReason.User.NotFound, nameof(PhoneNumber), phoneNumber.Value));
 
-				await _userRepository.SafePutAsync(user);
-
 				return Result<UserModel>.Success(
 					user.ToModel(),
-					"Usuário cadastrado com sucesso");
+					"Usuário logado com sucesso");
 			}
 			catch (Exception e)
 			{

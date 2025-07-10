@@ -1,5 +1,10 @@
+using Bug.Chatter.Application.Aggregates.Codes.SendNewCode;
+using Bug.Chatter.Application.Aggregates.Codes.ValidateCode;
 using Bug.Chatter.Application.DependencyInjection;
+using Bug.Chatter.Application.SeedWork.UseCaseStructure;
 using Bug.Chatter.Infrastructure.DependencyInjection;
+using Bug.Chatter.Infrastructure.IntegratedTests.SeedWork;
+using Bug.Chatter.Infrastructure.Persistence.DynamoDb;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Codes;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -9,18 +14,22 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 	[TestFixture]
 	public partial class CodeUseCaseTests
 	{
-		private readonly Mock<ICodeContext> _mockCodeContext;
+		private readonly DatabaseMock _databaseMock;
+
+		private readonly Mock<IDynamoDbRepository<CodeDTO>> _mockCodeContext;
 
 		private readonly IServiceProvider _scopeProvider;
 
 		public CodeUseCaseTests()
 		{
+			_databaseMock = new();
+
 			var services = new ServiceCollection();
 			services.AddApplicationServices();
 			services.AddInfrastructureServices();
 
-			_mockCodeContext = new Mock<ICodeContext>();
-			OverrideWithMockCodeContext(services, _mockCodeContext);
+			_mockCodeContext = new Mock<IDynamoDbRepository<CodeDTO>>();
+			services.OverrideWithMockContext<IDynamoDbRepository<CodeDTO>, CodeDTO>(_databaseMock, _mockCodeContext);
 
 			var _rootProvider = services.BuildServiceProvider(validateScopes: true);
 			_scopeProvider = _rootProvider.CreateScope().ServiceProvider;
@@ -29,87 +38,52 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 		[SetUp]
 		public void Setup()
 		{
+			_databaseMock.UseDefaultCodes();
 			Mock.Get(_mockCodeContext.Object).Invocations.Clear();
 		}
 
-		private ServiceCollection OverrideWithMockCodeContext(ServiceCollection services, Mock<ICodeContext> mockCodeContext)
+
+		[Test]
+		public async Task MultiCaseTest()
 		{
-			CodeDTO[] mockedCodes = [
-				new(
-					pk: "code-123456",
-					sk: "code-mainSchema-v0",
-					numericCode: "123456",
-					phoneNumber: "+55 (11) 97562-3736",
-					status: "Sent",
-					version: 999,
-					createdAt: "2099-01-10T01:05:00",
-					expiresAt: "2099-01-10T01:15:00",
-					ttl: 4072448700),
-				new(
-					pk: "code-654321",
-					sk: "code-mainSchema-v0",
-					numericCode: "654321",
-					phoneNumber: "+55 (11) 98237-5687",
-					status: "NotSentYet",
-					version: 999,
-					createdAt: "2099-01-10T01:05:00",
-					expiresAt: "2099-01-10T01:15:00",
-					ttl: 4072449300)
-			];
-
-			mockCodeContext
-				.Setup(mock => mock.GetAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()))
-				.ReturnsAsync((string pk, string sk, List<string> _) =>
-					mockedCodes.FirstOrDefault(code => code.PK == pk && code.SK == sk)
-				);
-
-			mockCodeContext
-				.Setup(mock => mock.ListByIndexKeysAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()))
-				.ReturnsAsync((string indexName, string indexPkValue, string indexSkValue, List<string> _) =>
-				{
-					var parts = indexName.Split('-');
-					var indexPkName = parts[0];
-					var indexSkName = parts[1];
-
-					return mockedCodes.Where(code =>
-					{
-						var codeIndexPkValue = code.GetType().GetProperty(indexPkName)?.GetValue(code)?.ToString();
-						var codeIndexSkValue = code.GetType().GetProperty(indexSkName)?.GetValue(code)?.ToString();
-
-						if (indexSkValue is null)
-							return codeIndexPkValue == indexPkValue;
-
-						return codeIndexPkValue == indexPkValue && codeIndexSkValue == indexSkValue;
-					});
-				});
-
-			mockCodeContext
-				.Setup(mock => mock.BatchGetAsync(It.IsAny<IEnumerable<(string, string)>>(), It.IsAny<List<string>>()))
-				.ReturnsAsync((IEnumerable<(string, string)> keysList, List<string> _) => 
-					mockedCodes.Where(code => 
-						keysList.Any(keys => keys.Item1 == code.PK && keys.Item2 == code.SK)
-					)
-				);
-
-			mockCodeContext
-				.Setup(mock => mock.ListByPartitionKeyAsync(It.IsAny<string>(), It.IsAny<List<string>>()))
-				.ReturnsAsync((string pk, List<string> _) =>
-					mockedCodes.Where(code => code.PK == pk)
-				);
-
-			mockCodeContext
-				.Setup(mock => mock.SafePutAsync(It.IsAny<CodeDTO>()));
-
-			mockCodeContext
-				.Setup(mock => mock.UpdateDynamicAsync(It.IsAny<CodeDTO>()));
-
-			mockCodeContext
-				.Setup(mock => mock.DeleteAsync(It.IsAny<string>(), It.IsAny<string>()));
+			// Arrange
+			var sendNewCodeUseCase = _scopeProvider.GetRequiredService<SendNewCodeUseCase>();
+			var sendNewCodeCommand = new SendNewCodeCommand("+55 (11) 97562-3736");
 
 
-			services.AddScoped(_ => mockCodeContext.Object);
 
-			return services;
+			// Act
+			var sendNewCodeResult = await sendNewCodeUseCase.HandleAsync(sendNewCodeCommand);
+
+
+			// Assert
+
+			_mockCodeContext.Verify(
+				r => r.GetAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()),
+				Times.AtLeastOnce);
+
+			_mockCodeContext.Verify(
+				r => r.SafePutAsync(It.IsAny<CodeDTO>()),
+				Times.Once);
+
+
+			// Arrange
+			var validateCodeUseCase = _scopeProvider.GetRequiredService<ValidateCodeUseCase>();
+			var validateCodeCommand = new ValidateCodeCommand("+55 (11) 97562-3736", "123456");
+
+			// Act
+			var validateCodeResult = await validateCodeUseCase.HandleAsync(validateCodeCommand);
+
+
+
+
+			
+
+			// Assert
+
+			_mockCodeContext.Verify(
+				r => r.GetAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()),
+				Times.AtLeastOnce);
 		}
 	}
 }

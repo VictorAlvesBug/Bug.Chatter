@@ -21,7 +21,6 @@ namespace Bug.Chatter.Application.Tests
 			// Act
 			foreach (var service in services)
 			{
-				// Skip open generic registrations
 				if (service.ServiceType.IsGenericType && service.ServiceType.ContainsGenericParameters)
 					continue;
 
@@ -29,7 +28,6 @@ namespace Bug.Chatter.Application.Tests
 				{
 					using var scope = provider.CreateScope();
 
-					// Handle different registration types appropriately
 					if (service.ImplementationType != null)
 					{
 						ActivatorUtilities.CreateInstance(scope.ServiceProvider, service.ImplementationType);
@@ -38,7 +36,6 @@ namespace Bug.Chatter.Application.Tests
 					{
 						service.ImplementationFactory(scope.ServiceProvider);
 					}
-					// Skip instance-based registrations as they don't need validation
 				}
 				catch (Exception ex)
 				{

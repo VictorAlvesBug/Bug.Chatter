@@ -1,22 +1,23 @@
 ﻿namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 {
-	public interface IDynamoDbRepository<T> : IDisposable where T : class
+	public interface IDynamoDbRepository<TEntityDTO> : IDisposable 
+		where TEntityDTO : EntityDTO
 	{
-		Task<T?> GetAsync(string pk, string sk, List<string>? attributesToGet = null);
+		Task<TEntityDTO?> GetAsync(string pk, string sk, List<string>? attributesToGet = null);
 
-		Task<IEnumerable<T>> ListByIndexKeysAsync(string indexName, string indexPk, string? indexSk = null, List<string>? attributesToGet = null);
+		Task<IEnumerable<TEntityDTO>> ListByIndexKeysAsync(string indexName, string indexPkValue, string? indexSkValue = null, List<string>? attributesToGet = null);
 
-		Task<IEnumerable<T>> BatchGetAsync(
+		Task<IEnumerable<TEntityDTO>> BatchGetAsync(
 			IEnumerable<(string pk, string sk)> keysToGet,
 			List<string>? attributesToGet = null);
 
-		Task<IEnumerable<T>> ListByPartitionKeyAsync(
+		Task<IEnumerable<TEntityDTO>> ListByPartitionKeyAsync(
 			string pk,
 			List<string>? attributesToGet = null);
 
-		Task SafePutAsync(T dto);
+		Task SafePutAsync(TEntityDTO dto);
 
-		Task UpdateDynamicAsync(T dto);
+		Task UpdateDynamicAsync(TEntityDTO dto);
 
 		Task DeleteAsync(string pk, string sk);
 

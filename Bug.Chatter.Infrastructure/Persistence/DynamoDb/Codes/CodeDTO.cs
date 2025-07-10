@@ -1,6 +1,6 @@
 ﻿namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Codes
 {
-	public class CodeDTO
+	public class CodeDTO : EntityDTO
 	{
 		public CodeDTO(
 			string pk,
@@ -12,9 +12,8 @@
 			string createdAt,
 			string expiresAt,
 			long ttl)
+			: base(pk, sk)
 		{
-			PK = pk;
-			SK = sk;
 			NumericCode = numericCode;
 			PhoneNumber = phoneNumber;
 			Status = status;
@@ -24,8 +23,6 @@
 			TTL = ttl;
 		}
 
-		public string PK { get; }
-		public string SK { get; }
 		public string NumericCode { get; }
 		public string PhoneNumber { get; }
 		public string Status { get; }

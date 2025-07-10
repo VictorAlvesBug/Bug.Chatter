@@ -14,7 +14,7 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 		{
 			// Arrange
 			var sendNewCodeUseCase = _scopeProvider.GetRequiredService<SendNewCodeUseCase>();
-			var command = new SendNewCodeCommand("+55 (11) 97562-3736");
+			var command = new SendNewCodeCommand("+55 (11) 97562-3736"); 
 
 			// Act
 			var result = await sendNewCodeUseCase.HandleAsync(command);

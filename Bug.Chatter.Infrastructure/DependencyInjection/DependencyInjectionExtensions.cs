@@ -16,16 +16,16 @@ namespace Bug.Chatter.Infrastructure.DependencyInjection
 			services.AddAWSService<IAmazonDynamoDB>();
 			services.AddMemoryCache();
 
-			services.AddScoped<ICodeContext, CodeContext>();
+			services.AddScoped<IDynamoDbRepository<CodeDTO>, GenericDynamoDbRepository<CodeDTO>>();
 			services.AddScoped<ICodeRepository, CodeRepository>();
 
-			services.AddScoped<IUserContext, UserContext>();
+			services.AddScoped<IDynamoDbRepository<UserDTO>, GenericDynamoDbRepository<UserDTO>>();
 			services.AddScoped<IUserRepository, UserRepository>();
 
-			//services.AddScoped<IChatContext, ChatContext>();
+			//services.AddScoped<IDynamoDbRepository<ChatDTO>, ChatContext>();
 			//services.AddScoped<IChatRepository, ChatRepository>();
 
-			//services.AddScoped<IMessageContext, MessageContext>();
+			//services.AddScoped<IDynamoDbRepository<MessageDTO>, MessageContext>();
 			//services.AddScoped<IMessageRepository, MessageRepository>();
 
 

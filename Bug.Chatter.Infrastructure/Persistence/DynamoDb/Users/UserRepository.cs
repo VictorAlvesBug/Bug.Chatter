@@ -6,10 +6,10 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 {
 	internal class UserRepository : IUserRepository
 	{
-		private readonly IUserContext _userContext;
+		private readonly IDynamoDbRepository<UserDTO> _userContext;
 		private readonly string _userSk;
 
-		public UserRepository(IUserContext userContext)
+		public UserRepository(IDynamoDbRepository<UserDTO> userContext)
 		{
 			_userContext = userContext;
 			_userSk = DatabaseSettings.UserSk;

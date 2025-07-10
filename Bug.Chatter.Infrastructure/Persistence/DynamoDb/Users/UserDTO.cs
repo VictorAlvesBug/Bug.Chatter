@@ -1,6 +1,6 @@
 ﻿namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 {
-	public class UserDTO
+	public class UserDTO : EntityDTO
 	{
 		public UserDTO(
 			string pk,
@@ -10,9 +10,8 @@
 			string phoneNumber,
 			int version,
 			string createdAt)
+			: base(pk, sk)
 		{
-			PK = pk;
-			SK = sk;
 			Id = id;
 			Name = name;
 			PhoneNumber = phoneNumber;
@@ -20,8 +19,6 @@
 			CreatedAt = createdAt;
 		}
 
-		public string PK { get; }
-		public string SK { get; }
 		public string Id { get; }
 		public string Name { get; }
 		public string PhoneNumber { get; }

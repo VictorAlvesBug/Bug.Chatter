@@ -6,10 +6,10 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Codes
 {
 	internal class CodeRepository : ICodeRepository
 	{
-		private readonly ICodeContext _codeContext;
+		private readonly IDynamoDbRepository<CodeDTO> _codeContext;
 		private readonly string _codeSk;
 
-		public CodeRepository(ICodeContext codeContext)
+		public CodeRepository(IDynamoDbRepository<CodeDTO> codeContext)
 		{
 			_codeContext = codeContext;
 			_codeSk = DatabaseSettings.CodeSk;
