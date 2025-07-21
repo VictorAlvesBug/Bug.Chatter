@@ -1,35 +1,36 @@
-using Bug.Chatter.Application.Aggregates.Codes.SendNewCode;
-using Bug.Chatter.Application.Aggregates.Codes.ValidateCode;
 using Bug.Chatter.Application.DependencyInjection;
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
+using Bug.Chatter.Application.Users.SendVerificationCode;
+using Bug.Chatter.Application.Users.ValidateVerificationCode;
+using Bug.Chatter.Domain.SeedWork.Specifications.UserLoad;
+using Bug.Chatter.Domain.Users;
 using Bug.Chatter.Infrastructure.DependencyInjection;
-using Bug.Chatter.Infrastructure.IntegratedTests.SeedWork;
+using Bug.Chatter.Infrastructure.IntegratedTests.SeedWork.InMemoryContexts;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb;
-using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Codes;
+using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 
 namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 {
 	[TestFixture]
 	public partial class CodeUseCaseTests
 	{
-		private readonly DatabaseMock _databaseMock;
-
-		private readonly Mock<IDynamoDbRepository<CodeDTO>> _mockCodeContext;
+		private readonly IDynamoDbRepository<UserCodeDTO> _inMemoryUserCodeContext;
+		private readonly IDynamoDbRepository<UserDTO> _inMemoryUserContext;
 
 		private readonly IServiceProvider _scopeProvider;
 
 		public CodeUseCaseTests()
 		{
-			_databaseMock = new();
-
 			var services = new ServiceCollection();
 			services.AddApplicationServices();
 			services.AddInfrastructureServices();
 
-			_mockCodeContext = new Mock<IDynamoDbRepository<CodeDTO>>();
-			services.OverrideWithMockContext<IDynamoDbRepository<CodeDTO>, CodeDTO>(_databaseMock, _mockCodeContext);
+			_inMemoryUserCodeContext = new InMemoryUserCodeContext();
+			services.AddScoped(_ => _inMemoryUserCodeContext);
+
+			_inMemoryUserContext = new InMemoryUserContext();
+			services.AddScoped(_ => _inMemoryUserContext);
 
 			var _rootProvider = services.BuildServiceProvider(validateScopes: true);
 			_scopeProvider = _rootProvider.CreateScope().ServiceProvider;
@@ -38,37 +39,48 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 		[SetUp]
 		public void Setup()
 		{
-			_databaseMock.UseDefaultCodes();
-			Mock.Get(_mockCodeContext.Object).Invocations.Clear();
+			((InMemoryUserCodeContext)_inMemoryUserCodeContext).UseDefaultValues();
+			((InMemoryUserContext)_inMemoryUserContext).UseDefaultValues();
+		}
+
+		[OneTimeTearDown]
+		public void OneTimeTearDown()
+		{
+			_inMemoryUserCodeContext.Dispose();
+			_inMemoryUserContext.Dispose();
 		}
 
 
 		[Test]
 		public async Task MultiCaseTest()
 		{
-			// Arrange & Act
-			var sendNewCodeUseCase = _scopeProvider.GetRequiredService<SendNewCodeUseCase>();
-			var sendNewCodeCommand = new SendNewCodeCommand("+55 (11) 97562-3736");
-			var sendNewCodeResult = await sendNewCodeUseCase.HandleAsync(sendNewCodeCommand);
+			var userId = Guid.Parse("094b1c2d-ee50-4c68-a18a-8dca65d450c6");
+			var sendVerificationCodeUseCase = _scopeProvider.GetRequiredService<SendVerificationCodeUseCase>();
+			var sendVerificationCodeCommand = new SendVerificationCodeCommand(userId);
+			var userRepository = _scopeProvider.GetRequiredService<IUserRepository>();
+			var spec = new UserWithCodesSpecification();
 
-			var lastSafePutInvocation = _mockCodeContext.GetLastInvocationOf(nameof(_mockCodeContext.Object.SafePutAsync));
-			Assert.That(lastSafePutInvocation, Is.Not.Null);
+			var userCodesBefore = (await userRepository.GetByUserIdAsync(sendVerificationCodeCommand.UserId, spec))?.Codes;
+			var sendVerificationCodeResult = await sendVerificationCodeUseCase.HandleAsync(sendVerificationCodeCommand);
+			var userCodesAfter = (await userRepository.GetByUserIdAsync(sendVerificationCodeCommand.UserId, spec))?.Codes;
 
-			var receivedCodeDTO = lastSafePutInvocation!.Arguments[0] as CodeDTO;
-			Assert.That(receivedCodeDTO, Is.Not.Null);
+			Assert.Multiple(() =>
+			{
+				Assert.That(userCodesBefore, Is.Not.Null);
+				Assert.That(userCodesAfter, Is.Not.Null);
+			});
+			
+			Assert.That(userCodesAfter, Has.Count.EqualTo(userCodesBefore.Count + 1));
 
-			var validateCodeUseCase = _scopeProvider.GetRequiredService<ValidateCodeUseCase>();
-			var validateCodeCommand = new ValidateCodeCommand(
-				receivedCodeDTO!.PhoneNumber,
-				receivedCodeDTO!.NumericCode
+			var validateVerificationCodeUseCase = _scopeProvider.GetRequiredService<ValidateVerificationCodeUseCase>();
+			var validateVerificationCodeCommand = new ValidateVerificationCodeCommand(
+				userId,
+				userCodesAfter!.LastOrDefault()?.VerificationCode.Value
 			);
 
-			var validateCodeResult = await validateCodeUseCase.HandleAsync(validateCodeCommand);
+			var validateVerificationCodeResult = await validateVerificationCodeUseCase.HandleAsync(validateVerificationCodeCommand);
 
-			// Assert
-			_mockCodeContext.Verify(
-				r => r.GetAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()),
-				Times.AtLeastOnce);
+			Assert.That(validateVerificationCodeResult.Status, Is.EqualTo(ResultStatus.Success));
 		}
 	}
 }

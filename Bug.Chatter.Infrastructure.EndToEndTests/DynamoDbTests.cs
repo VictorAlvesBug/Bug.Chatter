@@ -40,6 +40,7 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 				null,
 				"Outro User",
 				null,
+				null,
 				5,
 				DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"));
 
@@ -79,8 +80,8 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 
 			// Act
 			var result = await userContext.BatchGetAsync([
-				("user-2a902140-6191-4f04-9176-6fb66753cf6a", "user-mainSchema-v0"),
-				("user-c9ab6f85-fa95-4bd6-acc7-5d58cdbc211a", "user-mainSchema-v0")
+				("user-094b1c2d-ee50-4c68-a18a-8dca65d450c6", "user-mainSchema-v0"),
+				("user-ea9983c8-be00-4307-93ad-635d961de718", "user-mainSchema-v0")
 			]);
 
 			TestContext.WriteLine(result.ToJson());
@@ -93,7 +94,7 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 			var userContext = CreateScopeProvider().GetRequiredService<IDynamoDbRepository<UserDTO>>();
 
 			// Act
-			await userContext.DeleteAsync("user-2a902140-6191-4f04-9176-6fb66753cf6a", "user-mainSchema-v0");
+			await userContext.DeleteAsync("user-094b1c2d-ee50-4c68-a18a-8dca65d450c6", "user-mainSchema-v0", 3);
 		}
 
 		[Test]
@@ -103,16 +104,17 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 			var userContext = CreateScopeProvider().GetRequiredService<IDynamoDbRepository<UserDTO>>();
 
 			var userDto = new UserDTO(
-				"user-2a902140-6191-4f04-9176-6fb66753cf6a",
+				"user-094b1c2d-ee50-4c68-a18a-8dca65d450c6",
 				"user-mainSchema-v0",
 				null,
 				"2 Nome Atualizado",
+				null,
 				null,
 				5,
 				DateTime.UtcNow.ToBrazilianStringDateTime());
 
 			// Act
-			await userContext.UpdateDynamicAsync(userDto);
+			await userContext.UpdateDynamicAsync(userDto, 3);
 
 			var result = await userContext.GetAsync(userDto.PK, userDto.SK);
 

@@ -10,7 +10,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 		public bool TryLoadTable(
 			IAmazonDynamoDB ddbClient,
 			string tableName,
-			out IDynamoDbTable currentTable,
+			out IDynamoDbTable? currentTable,
 			out string reason);
 
 		public IDocumentBatchGet CreateBatchGet();

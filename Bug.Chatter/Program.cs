@@ -55,12 +55,12 @@ app.Run();
 ##### Use Cases #####
 
 --> Code
-Result(resultStatus, reason) SendNewCode(string phoneNumber)
-Result(resultStatus, reason) ValidateCode(string phoneNumber, string code)
+Result(resultStatus, reason) SendVerificationCode(string phoneNumber)
+Result(resultStatus, reason) ValidateVerificationCode(string phoneNumber, string code)
 // Rotina para limpar códigos de verificação expirados (via stream?)
 
 --> User
-Result(resultStatus, reason) ValidateNewUser(string name, string phoneNumber)
+Result(resultStatus, reason) InitializeUser(string name, string phoneNumber)
 Result(resultStatus, reason) ValidateExistingUser(string phoneNumber)
 Result(resultStatus, reason, data: User) RegisterUser(string name, string phoneNumber)
 Result(resultStatus, reason, data: User) LoginUser(string phoneNumber)

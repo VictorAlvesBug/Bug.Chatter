@@ -12,7 +12,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 
 		private readonly List<string> _expressionStatement = [];
 
-		public DynamoUtil(IDictionary<string, DynamoFilter> filters = null)
+		public DynamoUtil(IDictionary<string, DynamoFilter>? filters = null)
 		{
 			if (filters != null)
 				foreach (var filter in filters)
@@ -134,7 +134,9 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 			string prefix = ""
 		) => function switch
 		{
-			_ => $"#{key} {comparator} :{key}",
+			StatementFunction.SimpleComparison => $"#{key} {comparator} :{key}",
+			StatementFunction.BeginsWith => $"begins_with(#{key}, :{key})",
+			_ => throw new NotImplementedException(function.ToString()),
 		};
 
 		private void AddEnumValueAndStatement<T>(
@@ -212,7 +214,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 	public enum StatementFunction
 	{
 		SimpleComparison,
-		//BeginsWith,
+		BeginsWith,
 		//Contains,
 		//Between,
 		NotIn

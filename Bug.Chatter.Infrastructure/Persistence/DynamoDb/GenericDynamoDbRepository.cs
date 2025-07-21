@@ -56,6 +56,26 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 			return doc?.ConvertTo<TEntityDTO>();
 		}
 
+		public async Task<IEnumerable<TEntityDTO>> QueryAsync(string pk, string skBeginsWith, List<string>? attributesToGet = null)
+		{
+			var queryConfig = new QueryOperationConfig
+			{
+				Select = attributesToGet is null
+					? SelectValues.AllAttributes
+					: SelectValues.SpecificAttributes,
+				AttributesToGet = attributesToGet,
+				KeyExpression = new DynamoUtil
+				{
+					{ "PK", pk },
+					{ "SK", skBeginsWith, StatementFunction.BeginsWith }
+				}.ToExpression()
+			};
+
+			var search = CurrentTable.Query(queryConfig);
+
+			return (await search.GetRemainingAsync()).ConvertTo<TEntityDTO>();
+		}
+
 		public async Task<IEnumerable<TEntityDTO>> ListByIndexKeysAsync(string indexName, string indexPkValue, string? indexSkValue = null, List<string>? attributesToGet = null)
 		{
 			var indexes = await GetIndexAsync(indexName)
@@ -149,16 +169,35 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 			}
 		}
 
-		public async Task UpdateDynamicAsync(TEntityDTO dto)
+		public async Task UpdateDynamicAsync(TEntityDTO dto, int expectedVersion)
 		{
-			var doc = dto.ToDocument(nullValueHandling: true);
+			var document = dto.ToDocument(nullValueHandling: true);
 
-			await CurrentTable.UpdateItemAsync(doc);
+			await CurrentTable.UpdateItemAsync(
+				document,
+				new UpdateItemOperationConfig
+				{
+					ConditionalExpression = new Expression
+					{
+						ExpressionStatement = $"Version = {expectedVersion}"
+					}
+				}
+			);
 		}
 
-		public async Task DeleteAsync(string pk, string sk)
+		public async Task DeleteAsync(string pk, string sk, int expectedVersion)
 		{
-			await CurrentTable.DeleteItemAsync(new Primitive(pk), new Primitive(sk));
+			await CurrentTable.DeleteItemAsync(
+				new Primitive(pk),
+				new Primitive(sk),
+				new DeleteItemOperationConfig
+				{
+					ConditionalExpression = new Expression
+					{
+						ExpressionStatement = $"Version = {expectedVersion}"
+					}
+				}
+			);
 		}
 
 		private async Task<DynamoDbIndex?> GetIndexAsync(string indexName)
@@ -171,10 +210,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 				return response.Table.GlobalSecondaryIndexes.Select(gsi =>
 				{
 					var indexPkName = gsi.KeySchema.Find(ks => ks.KeyType == KeyType.HASH)?.AttributeName ?? "PK";
-					var indexSkName = gsi.KeySchema.Find(ks => ks.KeyType == KeyType.RANGE)?.AttributeName;
-
-					if (indexSkName is null)
-						return new DynamoDbIndex(gsi.IndexName, indexPkName);
+					var indexSkName = gsi.KeySchema.Find(ks => ks.KeyType == KeyType.RANGE)?.AttributeName ?? "SK";
 
 					return new DynamoDbIndex(gsi.IndexName, indexPkName, indexSkName);
 				});

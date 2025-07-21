@@ -6,10 +6,13 @@
 		public string IndexPk { get; private set; }
 		public string? IndexSk { get; private set; }
 
-		public DynamoDbIndex(string indexName, string indexPkValue, string indexSkValue = null)
+		public DynamoDbIndex(string indexName, string indexPkValue, string indexSkValue)
 		{
-			IndexName = indexName ?? throw new ArgumentNullException(indexName, nameof(indexName));
-			IndexPk = indexPkValue ?? throw new ArgumentNullException(indexPkValue, nameof(indexPkValue));
+			ArgumentNullException.ThrowIfNull(indexName, nameof(indexName));
+			ArgumentNullException.ThrowIfNull(indexPkValue, nameof(indexPkValue));
+
+			IndexName = indexName;
+			IndexPk = indexPkValue;
 			IndexSk = indexSkValue;
 		}
 	}

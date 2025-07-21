@@ -1,4 +1,4 @@
-﻿using Bug.Chatter.Application.Aggregates.Users.ValidateNewUser;
+﻿using Bug.Chatter.Application.Users.InitializeUser;
 using Bug.Chatter.Application.DependencyInjection;
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
 using Bug.Chatter.Infrastructure.DependencyInjection;
@@ -11,7 +11,7 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 {
 	internal class UseCaseTests
 	{
-		private ServiceProvider _rootProvider;
+		private ServiceProvider? _rootProvider;
 
 		[SetUp]
 		public void Setup()
@@ -30,15 +30,15 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 		}
 
 		[Test]
-		public async Task HandleAsync_ValidateNewUserUseCase_EndToEndTest()
+		public async Task HandleAsync_InitializeUserUseCase_EndToEndTest()
 		{
 			// Arrange
-			var validateNewUserUseCase = CreateScopeProvider().GetRequiredService<ValidateNewUserUseCase>();
+			var initializeUserUseCase = CreateScopeProvider().GetRequiredService<InitializeUserUseCase>();
 
-			var command = new ValidateNewUserCommand("Victor Bugueno", "+55 (11) 97562-3736");
+			var command = new InitializeUserCommand("Victor Bugueno", "+55 (11) 97562-3736");
 
 			// Act
-			var result = await validateNewUserUseCase.HandleAsync(command);
+			var result = await initializeUserUseCase.HandleAsync(command);
 
 			// Assert
 			Assert.Multiple(() =>

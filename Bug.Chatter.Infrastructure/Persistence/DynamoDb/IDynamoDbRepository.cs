@@ -5,6 +5,8 @@
 	{
 		Task<TEntityDTO?> GetAsync(string pk, string sk, List<string>? attributesToGet = null);
 
+		Task<IEnumerable<TEntityDTO>> QueryAsync(string pk, string skBeginsWith, List<string>? attributesToGet = null);
+		
 		Task<IEnumerable<TEntityDTO>> ListByIndexKeysAsync(string indexName, string indexPkValue, string? indexSkValue = null, List<string>? attributesToGet = null);
 
 		Task<IEnumerable<TEntityDTO>> BatchGetAsync(
@@ -17,9 +19,9 @@
 
 		Task SafePutAsync(TEntityDTO dto);
 
-		Task UpdateDynamicAsync(TEntityDTO dto);
+		Task UpdateDynamicAsync(TEntityDTO dto, int expectedVersion);
 
-		Task DeleteAsync(string pk, string sk);
+		Task DeleteAsync(string pk, string sk, int expectedVersion);
 
 
 	}

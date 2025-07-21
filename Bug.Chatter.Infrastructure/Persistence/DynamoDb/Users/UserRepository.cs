@@ -1,5 +1,8 @@
-﻿using Bug.Chatter.Domain.Aggregates.Users;
-using Bug.Chatter.Domain.ValueObjects;
+﻿using Bug.Chatter.Domain.Common.ValueObjects;
+using Bug.Chatter.Domain.SeedWork.Specifications.UserLoad;
+using Bug.Chatter.Domain.Users;
+using Bug.Chatter.Domain.Users.Entities;
+using Bug.Chatter.Domain.Users.ValueObjects;
 using Bug.Chatter.Infrastructure.Persistence.DynamoDb.Configurations;
 
 namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
@@ -7,69 +10,151 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 	internal class UserRepository : IUserRepository
 	{
 		private readonly IDynamoDbRepository<UserDTO> _userContext;
-		private readonly string _userSk;
+		private readonly IDynamoDbRepository<UserCodeDTO> _codeContext;
 
-		public UserRepository(IDynamoDbRepository<UserDTO> userContext)
+		public UserRepository(IDynamoDbRepository<UserDTO> userContext, IDynamoDbRepository<UserCodeDTO> codeContext)
 		{
 			_userContext = userContext;
-			_userSk = DatabaseSettings.UserSk;
+			_codeContext = codeContext;
 		}
 
-		public async Task<User?> GetAsync(UserPk pk)
+		public async Task<User?> GetByUserIdAsync(GuidId id, IUserLoadSpecification spec)
 		{
-			ArgumentException.ThrowIfNullOrWhiteSpace(pk.Value, nameof(pk));
+			ArgumentNullException.ThrowIfNull(id, nameof(id));
 
-			var dto = await _userContext.GetAsync(pk.Value, _userSk);
-			return dto is not null ? dto.ToDomain() : null;
+			var userDto = await _userContext.GetAsync(KeyFactory.UserPk(id), KeyFactory.UserSk());
+			if (userDto is null) return null;
+
+			if (spec.IncludeVerificationCodes)
+				return await IncludeVerificationCodes(userDto);
+
+			return userDto.ToDomain([]);
 		}
 
-		public async Task<User?> GetByPhoneNumberAsync(PhoneNumber phoneNumber)
+		public async Task<User?> GetByPhoneNumberAsync(PhoneNumber phoneNumber, IUserLoadSpecification spec)
 		{
-			ArgumentException.ThrowIfNullOrWhiteSpace(phoneNumber.Value, nameof(phoneNumber));
+			ArgumentNullException.ThrowIfNullOrWhiteSpace(phoneNumber.Value, nameof(phoneNumber));
 
-			var dtos = await _userContext.ListByIndexKeysAsync(DatabaseSettings.PhoneNumberSkIndex, phoneNumber.Value, _userSk);
-			return dtos.FirstOrDefault()?.ToDomain();
+			var userDto = (await _userContext.ListByIndexKeysAsync(DatabaseSettings.PhoneNumberSkIndex, phoneNumber.Value, KeyFactory.UserSk()))
+				?.FirstOrDefault();
+			if (userDto is null) return null;
+
+			if (spec.IncludeVerificationCodes)
+				return await IncludeVerificationCodes(userDto);
+
+			return userDto.ToDomain([]);
 		}
 
-		public async Task<User[]> BatchGetAsync(UserPk[] pks)
+		public async Task<IEnumerable<User>> ListByIdsAsync(IEnumerable<GuidId> ids, IUserLoadSpecification spec)
 		{
-			ArgumentNullException.ThrowIfNull(pks, nameof(pks));
+			ArgumentNullException.ThrowIfNull(ids, nameof(ids));
 
-			var dtos = await _userContext.BatchGetAsync(pks.Select(pk => (pk.Value, _userSk)));
+			if (ids.Count() == 0)
+				return [];
 
-			var missingKeys = MissingKeys(pks, dtos);
+			var keysToGetUsers = ids.Select(id => (KeyFactory.UserPk(id), KeyFactory.UserSk()));
 
-			if (missingKeys.Length > 0)
+			var userDtos = await _userContext.BatchGetAsync(keysToGetUsers);
+
+			var userMissingKeys = MissingKeys(keysToGetUsers, userDtos);
+
+			if (userMissingKeys.Any())
+			{
+				var strMissingKeys = string.Join(", ", userMissingKeys.Select(mk => $"(PK: {mk.pk} e SK: {mk.sk})"));
+
 				throw new Exception(
-					$"Alguns usuários não foram encontrados. PKs não encontradas: {string.Join(", ", missingKeys)}");
+					$"Alguns usuários não foram encontrados. PKs não encontradas: {strMissingKeys}");
+			}
 
-			return dtos.Select(dto => dto.ToDomain()).ToArray();
+			if (spec.IncludeVerificationCodes)
+				return await IncludeVerificationCodes(userDtos);
+
+			return userDtos.Select(userDto => userDto.ToDomain(codeDtos: [])).ToArray();
 		}
 
-		public async Task SafePutAsync(User user)
+		public async Task SaveAsync(User user, IUserLoadSpecification spec)
 		{
 			ArgumentNullException.ThrowIfNull(user, nameof(user));
 
-			await _userContext.SafePutAsync(user.ToDTO(_userSk));
+			var exists = await _userContext.GetAsync(KeyFactory.UserPk(user.Id), KeyFactory.UserSk()) is not null;
+
+			if (exists)
+			{
+				await UpdateAsync(user, spec);
+				return;
+			}
+
+			await CreateAsync(user, spec);
 		}
 
-		public async Task UpdateAsync(User user, int expectedVersion)
+		public async Task DeleteAsync(User user)
 		{
 			ArgumentNullException.ThrowIfNull(user, nameof(user));
 
-			await _userContext.UpdateDynamicAsync(user.ToDTO(_userSk));
+			var codes = await _codeContext.QueryAsync(KeyFactory.CodePk(user.Id), skBeginsWith: $"{KeyFactory.CodePrefix}-");
+
+			await Task.WhenAll(
+				codes.Select(code =>
+					_codeContext.DeleteAsync(code.PK, code.SK, code.Version))
+			);
+
+			await _userContext.DeleteAsync(KeyFactory.UserPk(user.Id), KeyFactory.UserSk(), user.Version);
 		}
 
-		public async Task DeleteAsync(UserPk pk, int expectedVersion)
+		private async Task CreateAsync(User user, IUserLoadSpecification spec)
 		{
-			ArgumentException.ThrowIfNullOrEmpty(pk.Value, nameof(pk));
+			ArgumentNullException.ThrowIfNull(user, nameof(user));
 
-			await _userContext.DeleteAsync(pk.Value, _userSk);
+			await _userContext.SafePutAsync(user.ToDTO());
+
+			if (spec.IncludeVerificationCodes)
+			{
+				await Task.WhenAll(
+					user.Codes.Select(async code => await _codeContext.SafePutAsync(code.ToDTO(user)))
+				);
+			}
 		}
 
-		private static string[] MissingKeys(UserPk[] pks, IEnumerable<UserDTO> dtos)
+		private async Task UpdateAsync(User user, IUserLoadSpecification spec)
 		{
-			return pks.Select(pk => pk.Value).Except(dtos.Where(x => x is not null).Select(x => x.PK)).ToArray();
+			ArgumentNullException.ThrowIfNull(user, nameof(user));
+
+			var userVersion = user.Version;
+			user.IncrementVersion();
+			await _userContext.UpdateDynamicAsync(user.ToDTO(), userVersion);
+
+			if (spec.IncludeVerificationCodes)
+			{
+				var dbCodeDtos = await _codeContext.QueryAsync(KeyFactory.CodePk(user.Id), skBeginsWith: $"{KeyFactory.CodePrefix}-");
+
+				await Task.WhenAll(
+					dbCodeDtos.Select(async dbCodeDto => await _codeContext.DeleteAsync(dbCodeDto.PK, dbCodeDto.SK, dbCodeDto.Version))
+				);
+
+				await Task.WhenAll(
+					user.Codes.Select(async code =>
+					{
+						code.IncrementVersion();
+						await _codeContext.SafePutAsync(code.ToDTO(user));
+					})
+				);
+			}
+		}
+
+		private static IEnumerable<(string pk, string sk)> MissingKeys(IEnumerable<(string pk, string sk)> keysToGet, IEnumerable<UserDTO> dtos)
+		{
+			return keysToGet.Except(dtos.Where(x => x is not null).Select(x => (x.PK, x.SK)));
+		}
+
+		private async Task<IEnumerable<User>> IncludeVerificationCodes(IEnumerable<UserDTO> userDtos)
+		{
+			return (await Task.WhenAll(userDtos.Select(async userDto => await IncludeVerificationCodes(userDto)))).ToList();
+		}
+
+		private async Task<User> IncludeVerificationCodes(UserDTO userDto)
+		{
+			var codeDtos = await _codeContext.QueryAsync(userDto.PK, skBeginsWith: $"{KeyFactory.CodePrefix}-");
+			return userDto.ToDomain(codeDtos);
 		}
 	}
 }

@@ -1,6 +1,5 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
-using System.Collections.Generic;
 
 namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 {
@@ -15,7 +14,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 		public bool TryLoadTable(
 			IAmazonDynamoDB ddbClient,
 			string tableName,
-			out IDynamoDbTable table,
+			out IDynamoDbTable? table,
 			out string reason)
 		{
 			reason = "";

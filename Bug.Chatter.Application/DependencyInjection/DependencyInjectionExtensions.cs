@@ -1,14 +1,12 @@
-﻿using Bug.Chatter.Application.Aggregates.Codes;
-using Bug.Chatter.Application.Aggregates.Codes.SendNewCode;
-using Bug.Chatter.Application.Aggregates.Codes.ValidateCode;
-using Bug.Chatter.Application.Aggregates.Users;
-using Bug.Chatter.Application.Aggregates.Users.LoginUser;
-using Bug.Chatter.Application.Aggregates.Users.RegisterUser;
-using Bug.Chatter.Application.Aggregates.Users.ValidateNewUser;
-using Bug.Chatter.Application.Common;
+﻿using Bug.Chatter.Application.Common;
 using Bug.Chatter.Application.SeedWork.UseCaseStructure;
-using Bug.Chatter.Domain.Aggregates.Codes;
-using Bug.Chatter.Domain.Aggregates.Users;
+using Bug.Chatter.Application.Users;
+using Bug.Chatter.Application.Users.InitializeUser;
+using Bug.Chatter.Application.Users.LoginUser;
+using Bug.Chatter.Application.Users.RegisterUser;
+using Bug.Chatter.Application.Users.SendVerificationCode;
+using Bug.Chatter.Application.Users.ValidateVerificationCode;
+using Bug.Chatter.Domain.Users.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bug.Chatter.Application.DependencyInjection
@@ -17,29 +15,27 @@ namespace Bug.Chatter.Application.DependencyInjection
 	{
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services)
 		{
-			services.AddSendNewCodeServices();
-			services.AddValidateCodeServices();
+			services.AddSendVerificationCodeServices();
+			services.AddValidateVerificationCodeServices();
 			services.AddLoginUserServices();
 			services.AddRegisterUserServices();
-			services.AddValidateNewUserServices();
+			services.AddInitializeUserServices();
 			return services;
 		}
 
-		public static IServiceCollection AddSendNewCodeServices(this IServiceCollection services)
+		public static IServiceCollection AddSendVerificationCodeServices(this IServiceCollection services)
 		{
-			services.AddScoped<ICommandMapper<SendNewCodeCommand, Code>,
-				SendNewCodeCommandMapper>();
-			services.AddScoped<IUseCase<SendNewCodeCommand, Result<CodeModel>>,
-				SendNewCodeUseCase>();
-			services.AddScoped<SendNewCodeUseCase>();
+			services.AddScoped<IUseCase<SendVerificationCodeCommand, Result<UserModel>>,
+				SendVerificationCodeUseCase>();
+			services.AddScoped<SendVerificationCodeUseCase>();
 			return services;
 		}
 
-		public static IServiceCollection AddValidateCodeServices(this IServiceCollection services)
+		public static IServiceCollection AddValidateVerificationCodeServices(this IServiceCollection services)
 		{
-			services.AddScoped<IUseCase<ValidateCodeCommand, Result<CodeModel>>,
-				ValidateCodeUseCase>();
-			services.AddScoped<ValidateCodeUseCase>();
+			services.AddScoped<IUseCase<ValidateVerificationCodeCommand, Result<UserModel>>,
+				ValidateVerificationCodeUseCase>();
+			services.AddScoped<ValidateVerificationCodeUseCase>();
 			return services;
 		}
 
@@ -53,21 +49,19 @@ namespace Bug.Chatter.Application.DependencyInjection
 
 		public static IServiceCollection AddRegisterUserServices(this IServiceCollection services)
 		{
-			services.AddScoped<ICommandMapper<RegisterUserCommand, User>,
-				RegisterUserCommandMapper>();
 			services.AddScoped<IUseCase<RegisterUserCommand, Result<UserModel>>,
 				RegisterUserUseCase>();
 			services.AddScoped<RegisterUserUseCase>();
 			return services;
 		}
 
-		public static IServiceCollection AddValidateNewUserServices(this IServiceCollection services)
+		public static IServiceCollection AddInitializeUserServices(this IServiceCollection services)
 		{
-			services.AddScoped<ICommandMapper<ValidateNewUserCommand, User>,
-				ValidateNewUserCommandMapper>();
-			services.AddScoped<IUseCase<ValidateNewUserCommand, Result<UserModel>>,
-				ValidateNewUserUseCase>();
-			services.AddScoped<ValidateNewUserUseCase>();
+			services.AddScoped<ICommandMapper<InitializeUserCommand, User>,
+				InitializeUserCommandMapper>();
+			services.AddScoped<IUseCase<InitializeUserCommand, Result<UserModel>>,
+				InitializeUserUseCase>();
+			services.AddScoped<InitializeUserUseCase>();
 			return services;
 		}
 	}

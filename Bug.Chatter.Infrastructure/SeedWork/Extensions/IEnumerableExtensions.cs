@@ -1,11 +1,13 @@
-﻿namespace Bug.Chatter.Infrastructure.SeedWork.Extensions
+﻿using System.ComponentModel;
+
+namespace Bug.Chatter.Infrastructure.SeedWork.Extensions
 {
 	public static class IEnumerableExtensions
 	{
 		public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> source, int size)
 		{
-			if (source == null) throw new ArgumentNullException(nameof(source));
-			if (size <= 0) throw new ArgumentOutOfRangeException(nameof(size));
+			ArgumentNullException.ThrowIfNull(source, nameof(source));
+			ArgumentOutOfRangeException.ThrowIfNegativeOrZero(source.Count(), nameof(source));
 
 			var numberOfChunks = (float)source.Count() / size;
 
