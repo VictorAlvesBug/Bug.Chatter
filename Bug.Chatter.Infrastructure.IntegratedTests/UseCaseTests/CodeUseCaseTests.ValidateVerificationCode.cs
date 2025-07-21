@@ -31,7 +31,7 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 				Assert.That(result.Status, Is.EqualTo(ResultStatus.Success));
 
 				Assert.That(userCodes, Is.Not.Null);
-				Assert.That(userCodes.Any(userCode => userCode.VerificationCode == command.VerificationCode));
+				Assert.That(userCodes!.Any(userCode => userCode.VerificationCode == command.VerificationCode));
 			});
 		}
 
@@ -55,7 +55,7 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 				Assert.That(result.Status, Is.EqualTo(ResultStatus.Rejected));
 
 				Assert.That(userCodes, Is.Not.Null);
-				Assert.That(!userCodes.Any(userCode => userCode.VerificationCode == command.VerificationCode));
+				Assert.That(!userCodes!.Any(userCode => userCode.VerificationCode == command.VerificationCode));
 			});
 		}
 
@@ -83,7 +83,7 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 		}
 
 		[Test]
-		public async Task ValidateVerificationCode_WithInvalidVerificationCode_ShouldThrowsInvalidVerificationCode()
+		public void ValidateVerificationCode_WithInvalidVerificationCode_ShouldThrowsInvalidVerificationCode()
 		{
 			// Arrange & Act & Assert
 			Assert.Throws<ArgumentException>(() => new ValidateVerificationCodeCommand(Guid.Parse("094b1c2d-ee50-4c68-a18a-8dca65d450c6"), "abcdef"));

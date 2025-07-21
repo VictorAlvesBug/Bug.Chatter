@@ -48,6 +48,6 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 			});
 		}
 
-		private IServiceProvider CreateScopeProvider() => _rootProvider.CreateScope().ServiceProvider;
+		private IServiceProvider CreateScopeProvider() => _rootProvider!.CreateScope().ServiceProvider;
 	}
 }

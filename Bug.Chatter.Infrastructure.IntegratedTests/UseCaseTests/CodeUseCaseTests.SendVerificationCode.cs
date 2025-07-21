@@ -34,7 +34,7 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 
 				Assert.That(userCodesBefore, Is.Not.Null);
 				Assert.That(userCodesAfter, Is.Not.Null);
-				Assert.That(userCodesAfter, Has.Count.EqualTo(userCodesBefore.Count + 1));
+				Assert.That(userCodesAfter!, Has.Count.EqualTo(userCodesBefore!.Count + 1));
 			});
 		}
 

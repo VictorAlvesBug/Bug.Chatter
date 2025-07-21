@@ -49,7 +49,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb.Users
 		{
 			ArgumentNullException.ThrowIfNull(ids, nameof(ids));
 
-			if (ids.Count() == 0)
+			if (!ids.Any())
 				return [];
 
 			var keysToGetUsers = ids.Select(id => (KeyFactory.UserPk(id), KeyFactory.UserSk()));

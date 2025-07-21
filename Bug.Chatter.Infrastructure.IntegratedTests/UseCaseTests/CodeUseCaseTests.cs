@@ -15,8 +15,8 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 	[TestFixture]
 	public partial class CodeUseCaseTests
 	{
-		private readonly IDynamoDbRepository<UserCodeDTO> _inMemoryUserCodeContext;
-		private readonly IDynamoDbRepository<UserDTO> _inMemoryUserContext;
+		private readonly InMemoryUserCodeContext _inMemoryUserCodeContext;
+		private readonly InMemoryUserContext _inMemoryUserContext;
 
 		private readonly IServiceProvider _scopeProvider;
 
@@ -27,10 +27,10 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 			services.AddInfrastructureServices();
 
 			_inMemoryUserCodeContext = new InMemoryUserCodeContext();
-			services.AddScoped(_ => _inMemoryUserCodeContext);
+			services.AddScoped<IDynamoDbRepository<UserCodeDTO>>(_ => _inMemoryUserCodeContext);
 
 			_inMemoryUserContext = new InMemoryUserContext();
-			services.AddScoped(_ => _inMemoryUserContext);
+			services.AddScoped<IDynamoDbRepository<UserDTO>>(_ => _inMemoryUserContext);
 
 			var _rootProvider = services.BuildServiceProvider(validateScopes: true);
 			_scopeProvider = _rootProvider.CreateScope().ServiceProvider;
@@ -39,8 +39,8 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 		[SetUp]
 		public void Setup()
 		{
-			((InMemoryUserCodeContext)_inMemoryUserCodeContext).UseDefaultValues();
-			((InMemoryUserContext)_inMemoryUserContext).UseDefaultValues();
+			_inMemoryUserCodeContext.UseDefaultValues();
+			_inMemoryUserContext.UseDefaultValues();
 		}
 
 		[OneTimeTearDown]
@@ -70,12 +70,12 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 				Assert.That(userCodesAfter, Is.Not.Null);
 			});
 			
-			Assert.That(userCodesAfter, Has.Count.EqualTo(userCodesBefore.Count + 1));
+			Assert.That(userCodesAfter!, Has.Count.EqualTo(userCodesBefore!.Count + 1));
 
 			var validateVerificationCodeUseCase = _scopeProvider.GetRequiredService<ValidateVerificationCodeUseCase>();
 			var validateVerificationCodeCommand = new ValidateVerificationCodeCommand(
 				userId,
-				userCodesAfter!.LastOrDefault()?.VerificationCode.Value
+				userCodesAfter!.Last().VerificationCode.Value
 			);
 
 			var validateVerificationCodeResult = await validateVerificationCodeUseCase.HandleAsync(validateVerificationCodeCommand);

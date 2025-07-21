@@ -12,7 +12,7 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 	[TestFixture]
 	public partial class UserUseCaseTests
 	{
-		private readonly IDynamoDbRepository<UserDTO> _inMemoryUserContext;
+		private readonly InMemoryUserContext _inMemoryUserContext;
 
 		private readonly IServiceProvider _scopeProvider;
 
@@ -23,7 +23,7 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 			services.AddInfrastructureServices();
 
 			_inMemoryUserContext = new InMemoryUserContext();
-			services.AddScoped(_ => _inMemoryUserContext);
+			services.AddScoped<IDynamoDbRepository<UserDTO>>(_ => _inMemoryUserContext);
 
 			var _rootProvider = services.BuildServiceProvider(validateScopes: true);
 			_scopeProvider = _rootProvider.CreateScope().ServiceProvider;

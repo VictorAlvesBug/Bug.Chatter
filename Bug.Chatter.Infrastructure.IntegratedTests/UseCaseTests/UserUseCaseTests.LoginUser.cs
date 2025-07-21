@@ -60,7 +60,7 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests.UseCaseTests
 		}
 
 		[Test]
-		public async Task LoginUser_WithInvalidPhoneNumber_ShouldReturnFailureResult()
+		public void LoginUser_WithInvalidPhoneNumber_ShouldReturnFailureResult()
 		{
 			// Arrange & Act & Assert
 			Assert.Throws<ArgumentException>(() => new LoginUserCommand("12345678"));

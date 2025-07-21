@@ -10,7 +10,7 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 {
 	internal class DynamoDbTests
 	{
-		private ServiceProvider _rootProvider;
+		private ServiceProvider? _rootProvider;
 
 		[SetUp]
 		public void Setup()
@@ -37,10 +37,10 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 			var userDto = new UserDTO(
 				"user-2a902140-6191-4f04-9176-6fb66753cf6a",
 				"user-mainSchema-v0",
-				null,
+				null!,
 				"Outro User",
-				null,
-				null,
+				null!,
+				null!,
 				5,
 				DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"));
 
@@ -57,7 +57,7 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 			// Act
 			var result = await userContext.GetAsync("user-2a902140-6191-4f04-9176-6fb66753cf6a", "user-mainSchema-v0");
 
-			TestContext.WriteLine(result.ToJson());
+			TestContext.WriteLine(result?.ToJson());
 		}
 
 		[Test]
@@ -106,10 +106,10 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 			var userDto = new UserDTO(
 				"user-094b1c2d-ee50-4c68-a18a-8dca65d450c6",
 				"user-mainSchema-v0",
-				null,
+				null!,
 				"2 Nome Atualizado",
-				null,
-				null,
+				null!,
+				null!,
 				5,
 				DateTime.UtcNow.ToBrazilianStringDateTime());
 
@@ -118,7 +118,7 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 
 			var result = await userContext.GetAsync(userDto.PK, userDto.SK);
 
-			TestContext.WriteLine(result.ToJson());
+			TestContext.WriteLine(result?.ToJson());
 		}
 
 		[Test]
@@ -133,6 +133,6 @@ namespace Bug.Chatter.Infrastructure.IntegratedTests
 			TestContext.WriteLine(result.ToJson());
 		}
 
-		private IServiceProvider CreateScopeProvider() => _rootProvider.CreateScope().ServiceProvider;
+		private IServiceProvider CreateScopeProvider() => _rootProvider!.CreateScope().ServiceProvider;
 	}
 }

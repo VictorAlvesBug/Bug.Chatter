@@ -16,6 +16,6 @@ namespace Bug.Chatter.Infrastructure.SeedWork.Extensions
 				.Where(obj => obj is not null).Select(obj => obj!);
 
 		public static Document ToDocument<T>(this T t, bool nullValueHandling = false)
-			=> Document.FromJson(t.ToJson(nullValueHandling: nullValueHandling));
+			=> Document.FromJson(t!.ToJson(nullValueHandling: nullValueHandling));
 	}
 }

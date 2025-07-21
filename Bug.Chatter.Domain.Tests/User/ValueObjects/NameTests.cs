@@ -17,8 +17,11 @@ namespace Bug.Chatter.Domain.Tests.User.ValueObjects
 			var actualName = Name.Create(name);
 
 			// Assert
-			Assert.That(actualName.Value, Is.EqualTo(name));
-			Assert.That(actualName.ToString(), Is.EqualTo(name));
+			Assert.Multiple(() =>
+			{
+				Assert.That(actualName.Value, Is.EqualTo(name));
+				Assert.That(actualName.ToString(), Is.EqualTo(name));
+			});
 		}
 
 		[Test]

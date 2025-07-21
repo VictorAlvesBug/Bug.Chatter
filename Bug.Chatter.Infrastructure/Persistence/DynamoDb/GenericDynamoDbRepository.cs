@@ -32,7 +32,7 @@ namespace Bug.Chatter.Infrastructure.Persistence.DynamoDb
 			TableName = DatabaseSettings.ChatterTableName;
 			CurrentTable =
 				table.TryLoadTable(ddbClient, TableName, out var currentTable, out string reason)
-				? currentTable
+				? currentTable!
 				: throw new Exception($"Erro ao carregar tabela {TableName}. Motivo: {reason}");
 			_memoryCache = memoryCache;
 		}

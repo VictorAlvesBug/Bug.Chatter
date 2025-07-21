@@ -56,10 +56,10 @@ namespace Bug.Chatter.Domain.Tests.User.ValueObjects
 			// Assert
 			Assert.Multiple(() =>
 			{
-				Assert.That(verificationCode.Value.Length, Is.EqualTo(length));
+				Assert.That(verificationCode.Value, Has.Length.EqualTo(length));
 				Assert.That(int.Parse(verificationCode.Value), Is.InRange(minValue, maxValue));
 
-				Assert.That(verificationCode.ToString().Length, Is.EqualTo(length));
+				Assert.That(verificationCode.ToString(), Has.Length.EqualTo(length));
 				Assert.That(int.Parse(verificationCode.ToString()), Is.InRange(minValue, maxValue));
 			});
 		}
